@@ -1,6 +1,5 @@
 class ClassRepository:
-    def __init__(self):
-        # کلید دیکشنری: نام کلاس | مقدار: آبجکت کلاس
+    def __init__(self):git
         self.classes = {}
 
     def add(self, gym_class):
@@ -10,7 +9,7 @@ class ClassRepository:
         return True
 
     def get_class(self, class_name):
-        # اگر کلاس وجود نداشته باشد، None  برمی‌گرداند
+
         return self.classes.get(class_name, None)
 
     def get_all(self):

@@ -11,7 +11,6 @@ class GymClass:
         self.is_active = True
 
     def _validate_inputs(self, name, schedule, capacity):
-        """اعتبارسنجی مقادیر ورودی بر  اساس دستورات تیم‌لید"""
         if not name or not str(name).strip():
             raise ValueError("نام کلاس نمی‌تواند خالی یا فقط شامل فاصله باشد.")
         if not schedule or not str(schedule).strip():

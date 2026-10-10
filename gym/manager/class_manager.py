@@ -2,7 +2,6 @@ from gym.models.gym_class import GymClass
 
 
 class OperationResult:
-    """کلاس استاندارد برای برگرداندن نتیجه عملیات‌ها"""
 
     def __init__(self, success: bool, message: str, data=None):
         self.success = success
@@ -12,31 +11,21 @@ class OperationResult:
 
 class ClassManager:
     def __init__(self, repository, check_coach_active_fn, check_hall_active_fn):
-        """
-        مدیر کلاس‌ها.
-        repository: آبجکت ClassRepository
-        check_coach_active_fn: تابعی که نام مربی را می‌گیرد و True/False برمی‌گرداند
-        check_hall_active_fn: تابعی که نام سالن را می‌گیرد و True/False برمی‌گرداند
-        """
         self.repository = repository
         self.check_coach = check_coach_active_fn
         self.check_hall = check_hall_active_fn
 
     def create_class(self, name, exercise, coach_name, hall_name, schedule, capacity):
         try:
-            # ۱. بررسی تکراری نبودن نام کلاس
             if self.repository.get_class(name):
                 return OperationResult(False, f"کلاسی با نام '{name}' از قبل وجود دارد.")
 
-            # ۲. بررسی وجود و فعال بودن مربی
             if not self.check_coach(coach_name):
                 return OperationResult(False, f"مربی '{coach_name}' وجود ندارد یا غیرفعال است.")
 
-            # ۳. بررسی وجود و فعال بودن سالنن
             if not self.check_hall(hall_name):
                 return OperationResult(False, f"سالن '{hall_name}' وجود ندارد یا غیرفعال است.")
 
-            # ۴. ساخت و ذخیره کلاس
             new_class = GymClass(name, exercise, coach_name,
                                  hall_name, schedule, capacity)
             self.repository.add(new_class)
@@ -44,7 +33,6 @@ class ClassManager:
             return OperationResult(True, "کلاس با موفقیت ایجاد شد.", new_class)
 
         except ValueError as e:
-            # مدیریت خطاهای اعتبارسنجی (مثل ظرفیت صفر یا نام خالی)
             return OperationResult(False, str(e))
         except Exception as e:
             return OperationResult(False, f"خطای ناشناخته رخ داد: {str(e)}")
@@ -65,13 +53,11 @@ class ClassManager:
             if not gym_class:
                 return OperationResult(False, "کلاس مورد نظر برای ویرایش یافت نشد.")
 
-            # اگر اسم کلاس تغییر کرده، باید چک کنیم اسم جدید تکراری نباشد
             if original_name != new_name and self.repository.get_class(new_name):
                 return OperationResult(False, f"کلاسی با نام جدید '{new_name}' از قبل وجود دارد.")
 
             gym_class.update_details(new_name, exercise, schedule, capacity)
 
-            # اگر اسم تغییر کرده باشد، باید در دیتابیس هم کلید  جدید را جایگزین کنیم 
             if original_name != new_name:
                 self.repository.classes.pop(original_name)
                 self.repository.add(gym_class)
