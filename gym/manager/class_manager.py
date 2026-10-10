@@ -32,7 +32,7 @@ class ClassManager:
             if not self.check_coach(coach_name):
                 return OperationResult(False, f"مربی '{coach_name}' وجود ندارد یا غیرفعال است.")
 
-            # ۳. بررسی وجود و فعال بودن سالن
+            # ۳. بررسی وجود و فعال بودن سالنن
             if not self.check_hall(hall_name):
                 return OperationResult(False, f"سالن '{hall_name}' وجود ندارد یا غیرفعال است.")
 
