@@ -10,10 +10,10 @@ class Wallet:
         try:
             amount = int(amount)
         except ValueError:
-            print("Amount must be an integer")
+            return "Amount must be an integer"
         else:
             if amount <= 0:
-                print("Amount must be greater than zero")
+                return "Amount must be greater than zero"
             else:
                 self.pay()
 
@@ -23,18 +23,18 @@ class Wallet:
             payment_id = api.pay(card, exp_month, exp_year, password, cvv2)
             self.__balance += amount
         except ValueError:
-            print("Invalid payment details.")
+            return "Invalid payment details."
 
     def withdraw(self, amount):
         try:
             amount = int(amount)
         except ValueError:
-            print("Amount must be an integer")
+            return "Amount must be an integer"
         else:
             if amount <= 0:
-                print("Amount must be greater than zero")
+                return "Amount must be greater than zero"
             elif amount > self.__balance:
-                print("Insufficient balance")
+                return "Insufficient balance"
             else:
                 self.__balance -= amount
 
