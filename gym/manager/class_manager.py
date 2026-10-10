@@ -71,7 +71,7 @@ class ClassManager:
 
             gym_class.update_details(new_name, exercise, schedule, capacity)
 
-            # اگر اسم تغییر کرده باشد، باید در دیتابیس هم کلید جدید را جایگزین کنیم
+            # اگر اسم تغییر کرده باشد، باید در دیتابیس هم کلید  جدید را جایگزین کنیم 
             if original_name != new_name:
                 self.repository.classes.pop(original_name)
                 self.repository.add(gym_class)

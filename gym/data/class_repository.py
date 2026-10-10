@@ -10,7 +10,7 @@ class ClassRepository:
         return True
 
     def get_class(self, class_name):
-        # اگر کلاس وجود نداشته باشد، None برمی‌گرداند
+        # اگر کلاس وجود نداشته باشد، None  برمی‌گرداند
         return self.classes.get(class_name, None)
 
     def get_all(self):
