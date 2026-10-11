@@ -1,3 +1,9 @@
+from menus.manger_menus.manage_users import manage_users_menu
+from menus.manger_menus.manage_halls import manage_halls_menu
+from menus.manger_menus.manage_classes import manage_classes_menu
+from menus.manger_menus.manage_subscriptions import manage_subscriptions_menu
+from menus.manger_menus.show_reports import show_reports
+
 
 def manager_menu():
 
@@ -11,17 +17,23 @@ def manager_menu():
         print("6. Exit")
 
         choice = input("Choose an option: ")
-        
+
         if choice == "1":
-            pass
+            manage_users_menu()
+
         elif choice == "2":
-            pass
+            manage_halls_menu()
+
         elif choice == "3":
-            pass
+            manage_classes_menu()
+
         elif choice == "4":
-            pass
+            manage_subscriptions_menu()
+
         elif choice == "5":
-            pass
+            show_reports()
+
         elif choice == "6":
             break
+
         print("Invalid choice. Please try again.")
