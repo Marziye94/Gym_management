@@ -1,10 +1,9 @@
-from manager_menu import manager_menu
-from coach_menu import coach_menu
-from member_menu import member_menu
+from menus.manager_menu import manager_menu
+from menus.coach_menu import coach_menu
+from menus.member_menu import member_menu
 
 
 def main_menu():
-
     while True:
         print("--- Gym Management System ---")
         print("1. Manager")

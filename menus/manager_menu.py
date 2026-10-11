@@ -35,5 +35,6 @@ def manager_menu():
 
         elif choice == "6":
             break
-
-        print("Invalid choice. Please try again.")
+        
+        else:
+            print("Invalid choice. Please try again.")
