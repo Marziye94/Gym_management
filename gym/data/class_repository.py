@@ -18,5 +18,5 @@ class ClassRepository:
     def update(self, gym_class):
         if gym_class.name not in self.classes:
             return False
-        self.classes[gym_class.name] = gym_class
+        self.classes[gym_class.name] =  gym_class
         return True
