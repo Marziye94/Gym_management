@@ -1,6 +1,7 @@
 import os
 from gym.models.transaction import Transaction
 
+
 class TransactionRepository:
     def __init__(self, file_path="transactions.txt"):
         self.file_path = file_path
@@ -10,7 +11,6 @@ class TransactionRepository:
             with open(self.file_path, "a", encoding="utf-8") as file:
                 file.write(transaction.to_text())
             return True
-
         except (OSError, AttributeError, TypeError):
             return False
 
@@ -41,7 +41,7 @@ class TransactionRepository:
                     except (ValueError, TypeError):
                         continue
         except OSError:
-            return "Failed to read transactions"
+            return transactions
 
         return transactions
 

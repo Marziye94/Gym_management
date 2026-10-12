@@ -98,14 +98,14 @@ class PaymentManager:
 
     def get_member_transactions(self, member_username):
         if not self._validate_member(member_username):
-            return []
+            return [] , "Unsuccessful"
         
         try:
             transactions = self.transaction_repository.get_member_transactions(member_username)
         except (OSError, ValueError, TypeError, AttributeError):
-            return []
+            return [] , "Unsuccessful"
 
         if transactions is None:
-            return []
+            return [] , "Unsuccessful"
 
-        return transactions
+        return True, transactions

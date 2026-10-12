@@ -9,10 +9,12 @@ class Transaction:
         self.payment_id = payment_id
         if date is None:
             self.date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            self.date = date
 
     def to_text(self):
         return (
-            f"{self.username}|{self.transaction_type}|"
+            f"{self.member_username}|{self.transaction_type}|"
             f"{self.amount}|{self.date}|"
             f"{self.description}|{self.payment_id}\n"
         )

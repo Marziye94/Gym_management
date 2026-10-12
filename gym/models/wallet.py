@@ -5,7 +5,7 @@ from gym.data.transaction_repository import TransactionRepository
 
 class Wallet:
     def __init__(self, member_username):
-        if not isinstance(member_username, str) or not member_username.stip():
+        if not isinstance(member_username, str) or not member_username.strip():
             raise ValueError("Member username cannot be empty")
         self.member_username = member_username
         self.__balance = 0
