@@ -1,40 +1,67 @@
 class GymClass:
-    def __init__(self, name, exercise, coach_name, hall_name, schedule, capacity):
-        self._validate_inputs(name, schedule, capacity)
+    def __init__(
+        self,
+        name,
+        exercise,
+        coach_name,
+        hall_name,
+        day,
+        time,
+        capacity,
+        remaining_capacity=None,
+        is_active=True,
+    ):
+        self._validate_inputs(name, exercise, coach_name,
+                              hall_name, day, time, capacity)
 
         self.name = str(name).strip()
-        self.exercise = str(exercise).strip() if exercise else ""
-        self.coach_name = str(coach_name).strip() if coach_name else ""
-        self.hall_name = str(hall_name).strip() if hall_name else ""
-        self.schedule = str(schedule).strip()
+        self.exercise = str(exercise).strip()
+        self.coach_name = str(coach_name).strip()
+        self.hall_name = str(hall_name).strip()
+        self.day = str(day).strip()
+        self.time = str(time).strip()
         self.capacity = capacity
-        self.is_active = True
+        self.remaining_capacity = capacity if remaining_capacity is None else remaining_capacity
+        self.is_active = bool(is_active)
 
-    def _validate_inputs(self, name, schedule, capacity):
+    def _validate_inputs(self, name, exercise, coach_name, hall_name, day, time, capacity):
         if not name or not str(name).strip():
-            raise ValueError(
-                "Class name cannot be empty or consist only of whitespace.")
-        if not schedule or not str(schedule).strip():
-            raise ValueError("Schedule (day and time) cannot be empty.")
-        if not isinstance(capacity, int) or capacity <= 0:
-            raise ValueError(
-                "Class capacity must be an integer greater than zero.")
+            raise ValueError("Class title must not be empty.")
+        if not exercise or not str(exercise).strip():
+            raise ValueError("Sport type must not be empty.")
+        if not coach_name or not str(coach_name).strip():
+            raise ValueError("Coach name must not be empty.")
+        if not hall_name or not str(hall_name).strip():
+            raise ValueError("Hall name must not be empty.")
+        if not day or not str(day).strip():
+            raise ValueError("Day must not be empty.")
+        if not time or not str(time).strip():
+            raise ValueError("Time must not be empty.")
+        if isinstance(capacity, bool) or not isinstance(capacity, int) or capacity <= 0:
+            raise ValueError("Capacity must be a positive integer.")
 
-    def update_details(self, name, exercise, schedule, capacity):
-        self._validate_inputs(name, schedule, capacity)
+    def update_details(self, name, exercise, coach_name, hall_name, day, time, capacity):
+        self._validate_inputs(name, exercise, coach_name,
+                              hall_name, day, time, capacity)
+
+        registered_members = self.capacity - self.remaining_capacity
         self.name = str(name).strip()
-        self.exercise = str(exercise).strip() if exercise else ""
-        self.schedule = str(schedule).strip()
+        self.exercise = str(exercise).strip()
+        self.coach_name = str(coach_name).strip()
+        self.hall_name = str(hall_name).strip()
+        self.day = str(day).strip()
+        self.time = str(time).strip()
         self.capacity = capacity
+        self.remaining_capacity = max(0, capacity - registered_members)
 
     def assign_coach(self, coach_name):
         if not coach_name or not str(coach_name).strip():
-            raise ValueError("Coach name cannot be empty.")
+            raise ValueError("Coach name must not be empty.")
         self.coach_name = str(coach_name).strip()
 
     def assign_hall(self, hall_name):
         if not hall_name or not str(hall_name).strip():
-            raise ValueError("Hall name cannot be empty.")
+            raise ValueError("Hall name must not be empty.")
         self.hall_name = str(hall_name).strip()
 
     def activate(self):
