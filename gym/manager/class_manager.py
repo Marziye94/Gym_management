@@ -3,7 +3,7 @@ from gym.models.gym_class import GymClass
 
 class OperationResult:
 
-    def __init__(self, success: bool, message: str, data=None):
+    def __init__(self, success, message, data=None):
         self.success = success
         self.message = message
         self.data = data
@@ -18,43 +18,43 @@ class ClassManager:
     def create_class(self, name, exercise, coach_name, hall_name, schedule, capacity):
         try:
             if self.repository.get_class(name):
-                return OperationResult(False, f"کلاسی با نام '{name}' از قبل وجود دارد.")
+                return OperationResult(False, f"A class named {name} already exists.")
 
             if not self.check_coach(coach_name):
-                return OperationResult(False, f"مربی '{coach_name}' وجود ندارد یا غیرفعال است.")
+                return OperationResult(False, f"Coach {coach_name} does not exist or is inactive.")
 
             if not self.check_hall(hall_name):
-                return OperationResult(False, f"سالن '{hall_name}' وجود ندارد یا غیرفعال است.")
+                return OperationResult(False, f"Hall {hall_name} does not exist or is inactive.")
 
             new_class = GymClass(name, exercise, coach_name,
                                  hall_name, schedule, capacity)
             self.repository.add(new_class)
 
-            return OperationResult(True, "کلاس با موفقیت ایجاد شد.", new_class)
+            return OperationResult(True, "Class created successfully.", new_class)
 
         except ValueError as e:
             return OperationResult(False, str(e))
         except Exception as e:
-            return OperationResult(False, f"خطای ناشناخته رخ داد: {str(e)}")
+            return OperationResult(False, f"An unknown error occurred: {str(e)}")
 
     def get_class(self, name):
         gym_class = self.repository.get_class(name)
         if gym_class:
-            return OperationResult(True, "کلاس پیدا شد.", gym_class)
-        return OperationResult(False, "کلاسی با این نام یافت نشد.")
+            return OperationResult(True, "Class found.", gym_class)
+        return OperationResult(False, "Class not found.")
 
     def list_classes(self):
         classes = self.repository.get_all()
-        return OperationResult(True, f"{len(classes)} کلاس یافت شد.", classes)
+        return OperationResult(True, f"{len(classes)} classes found.", classes)
 
     def update_class(self, original_name, new_name, exercise, schedule, capacity):
         try:
             gym_class = self.repository.get_class(original_name)
             if not gym_class:
-                return OperationResult(False, "کلاس مورد نظر برای ویرایش یافت نشد.")
+                return OperationResult(False, "Class not found for editing.")
 
             if original_name != new_name and self.repository.get_class(new_name):
-                return OperationResult(False, f"کلاسی با نام جدید '{new_name}' از قبل وجود دارد.")
+                return OperationResult(False, f"A class with the new name '{new_name}' already exists.")
 
             gym_class.update_details(new_name, exercise, schedule, capacity)
 
@@ -64,7 +64,7 @@ class ClassManager:
             else:
                 self.repository.update(gym_class)
 
-            return OperationResult(True, "اطلاعات کلاس با موفقیت به‌روزرسانی شد.", gym_class)
+            return OperationResult(True, "Class details updated successfully.", gym_class)
         except ValueError as e:
             return OperationResult(False, str(e))
 
@@ -72,14 +72,14 @@ class ClassManager:
         try:
             gym_class = self.repository.get_class(class_name)
             if not gym_class:
-                return OperationResult(False, "کلاس یافت نشد.")
+                return OperationResult(False, "Class not found.")
 
             if not self.check_coach(coach_name):
-                return OperationResult(False, "مربی مورد نظر وجود ندارد یا غیرفعال است.")
+                return OperationResult(False, f"Coach {coach_name} does not exist or is inactive.")
 
             gym_class.assign_coach(coach_name)
             self.repository.update(gym_class)
-            return OperationResult(True, f"مربی '{coach_name}' با موفقیت به کلاس اختصاص یافت.", gym_class)
+            return OperationResult(True, f"Coach '{coach_name}' was successfully assigned to the class.", gym_class)
         except ValueError as e:
             return OperationResult(False, str(e))
 
@@ -87,31 +87,31 @@ class ClassManager:
         try:
             gym_class = self.repository.get_class(class_name)
             if not gym_class:
-                return OperationResult(False, "کلاس یافت نشد.")
+                return OperationResult(False, "Class not found.")
 
             if not self.check_hall(hall_name):
-                return OperationResult(False, "سالن مورد نظر وجود ندارد یا غیرفعال است.")
+                return OperationResult(False, f"Hall {hall_name} does not exist or is inactive.")
 
             gym_class.assign_hall(hall_name)
             self.repository.update(gym_class)
-            return OperationResult(True, f"سالن '{hall_name}' با موفقیت به کلاس اختصاص یافت.", gym_class)
+            return OperationResult(True, f"Hall '{hall_name}' was successfully assigned to the class.", gym_class)
         except ValueError as e:
             return OperationResult(False, str(e))
 
     def deactivate_class(self, class_name):
         gym_class = self.repository.get_class(class_name)
         if not gym_class:
-            return OperationResult(False, "کلاس یافت نشد.")
+            return OperationResult(False, "Class not found.")
 
         gym_class.deactivate()
         self.repository.update(gym_class)
-        return OperationResult(True, "کلاس با موفقیت غیرفعال شد.", gym_class)
+        return OperationResult(True, "Class deactivated successfully.", gym_class)
 
     def activate_class(self, class_name):
         gym_class = self.repository.get_class(class_name)
         if not gym_class:
-            return OperationResult(False, "کلاس یافت نشد.")
+            return OperationResult(False, "Class not found.")
 
         gym_class.activate()
         self.repository.update(gym_class)
-        return OperationResult(True, "کلاس با موفقیت فعال شد.", gym_class)
+        return OperationResult(True, "Class activated successfully.", gym_class)

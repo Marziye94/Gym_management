@@ -1,5 +1,5 @@
 class ClassRepository:
-    def __init__(self):git
+    def __init__(self):
         self.classes = {}
 
     def add(self, gym_class):
