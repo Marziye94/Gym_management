@@ -1,38 +1,37 @@
-from datetime import timedelta
+from datetime import date
 
 class SubscriptionPlan:
     def __init__(self, name, price, duration_days, plan_id=None, is_active=True):
-        name = name.strip()
-        if not name:
-            raise ValueError("Plan name cannot be empty or whitespace.")
-        if price < 0:
-            raise ValueError("Price must be a non-negative numeric value.")
-        if duration_days <= 0:
+        if not isinstance(name, str) or not name.strip():
+            raise ValueError("Plan name must be a non-empty string.")
+        if not isinstance(price, (int, float)) or price <= 0:
+            raise ValueError("Price must be a numeric value greater than zero.")
+        if not isinstance(duration_days, int) or duration_days <= 0:
             raise ValueError("Duration must be a positive integer.")
             
         self.plan_id = plan_id
-        self.name = name
-        self.price = price
+        self.name = name.strip()
+        self.price = float(price)
         self.duration_days = duration_days
         self.is_active = is_active
 
 class Subscription:
-    def __init__(self, member_username, plan_id, start_date, end_date, subscription_id=None, status="active"):
-        member_username = member_username.strip()
-        if not member_username:
-            raise ValueError("Username cannot be empty or whitespace.")
+    def __init__(self, member_username, plan_id, start_date, end_date, subscription_id=None):
+        if not isinstance(member_username, str) or not member_username.strip():
+            raise ValueError("Member username must be a non-empty string.")
+        if not isinstance(start_date, date) or not isinstance(end_date, date):
+            raise ValueError("Start date and end date must be valid date objects.")
+        if end_date <= start_date:
+            raise ValueError("End date must be later than start date.")
             
         self.subscription_id = subscription_id
-        self.member_username = member_username
+        self.member_username = member_username.strip()
         self.plan_id = plan_id
         self.start_date = start_date
         self.end_date = end_date
-        self.status = status
 
-    def is_active(self, current_date):
-        if self.status != "active":
-            return False
-        return self.start_date <= current_date < self.end_date
-
-    def expire(self):
-        self.status = "expired"
+    def get_status(self, current_date):
+        # طبق قانون، روز پایان شامل اشتراک نمی‌شود (Exclusive)
+        if self.start_date <= current_date < self.end_date:
+            return "Active"
+        return "Expired"
