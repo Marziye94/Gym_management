@@ -12,12 +12,13 @@ class GymClass:
 
     def _validate_inputs(self, name, schedule, capacity):
         if not name or not str(name).strip():
-            raise ValueError("نام کلاس نمی‌تواند خالی یا فقط شامل فاصله باشد.")
+            raise ValueError(
+                "Class name cannot be empty or consist only of whitespace.")
         if not schedule or not str(schedule).strip():
-            raise ValueError("برنامه زمانی (روز و ساعت) نمی‌تواند خالی باشد.")
+            raise ValueError("Schedule (day and time) cannot be empty.")
         if not isinstance(capacity, int) or capacity <= 0:
             raise ValueError(
-                "ظرفیت کلاس باید یک عدد صحیح و بزرگتر از صفر باشد.")
+                "Class capacity must be an integer greater than zero.")
 
     def update_details(self, name, exercise, schedule, capacity):
         self._validate_inputs(name, schedule, capacity)
@@ -28,12 +29,12 @@ class GymClass:
 
     def assign_coach(self, coach_name):
         if not coach_name or not str(coach_name).strip():
-            raise ValueError("نام مربی نمی‌تواند خالی باشد.")
+            raise ValueError("Coach name cannot be empty.")
         self.coach_name = str(coach_name).strip()
 
     def assign_hall(self, hall_name):
         if not hall_name or not str(hall_name).strip():
-            raise ValueError("نام سالن نمی‌تواند خالی باشد.")
+            raise ValueError("Hall name cannot be empty.")
         self.hall_name = str(hall_name).strip()
 
     def activate(self):
