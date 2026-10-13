@@ -87,31 +87,3 @@ class SubscriptionManager:
                 return OperationResult(True, "Active subscription found.", sub)
                 
         return OperationResult(False, "No active subscription found for this date.")
-    
-    def renew_subscription(self, member_username, plan_id, current_date, payment_manager):
-        plan = self.repo.get_plan_by_id(plan_id)
-
-        if not plan:
-            return OperationResult(False, "Plan not found.")
-
-        if not plan.is_active:
-            return OperationResult(False, "This plan is inactive.")
-
-        start_date = current_date
-        subscriptions = self.repo.get_by_member_username(member_username)
-
-        for sub in subscriptions:
-            if sub.status == "active" and sub.end_date > start_date:
-                start_date = sub.end_date
-
-        success, message = payment_manager.pay_from_wallet(
-            member_username, plan.price
-        )
-
-        if not success:
-            return OperationResult(False, message)
-
-        return self.create_subscription(
-            member_username, plan_id, start_date
-        )
-    
