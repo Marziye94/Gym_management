@@ -1,11 +1,11 @@
-from menus.manger_menus.manage_users import manage_users_menu
-from menus.manger_menus.manage_halls import manage_halls_menu
-from menus.manger_menus.manage_classes import manage_classes_menu
-from menus.manger_menus.manage_subscriptions import manage_subscriptions_menu
-from menus.manger_menus.show_reports import show_reports
+from menus.manager_menus.manage_users import manage_users_menu
+from menus.manager_menus.manage_halls import manage_halls_menu
+from menus.manager_menus.manage_classes import manage_classes_menu
+from menus.manager_menus.manage_subscriptions import manage_subscriptions_menu
+from menus.manager_menus.show_reports import show_reports
 
 
-def manager_menu():
+def manager_menu(hall_manager):
 
     while True:
         print("--- Manager Panel ---")
@@ -22,7 +22,7 @@ def manager_menu():
             manage_users_menu()
 
         elif choice == "2":
-            manage_halls_menu()
+            manage_halls_menu(hall_manager)
 
         elif choice == "3":
             manage_classes_menu()
