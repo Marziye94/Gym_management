@@ -87,3 +87,4 @@ class SubscriptionManager:
                 return OperationResult(True, "Active subscription found.", sub)
                 
         return OperationResult(False, "No active subscription found for this date.")
+    
