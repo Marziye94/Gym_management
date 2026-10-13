@@ -1,4 +1,6 @@
-def wallet_menu(member_username, payment_manager):
+from datetime import date
+
+def wallet_menu(member_username, payment_manager, subscription_manager):
     
     while True:
         print("1. View Balance")
@@ -59,7 +61,40 @@ def wallet_menu(member_username, payment_manager):
                     print(f"Description: {transaction.description}")
                     print(f"Tracking number: {transaction.payment_id}")
         elif choice == "4":
-            print("Subscription payment integration is not connected yet.")
+            plans = subscription_manager.list_plans()
+            active_plans = []
+
+            for plan in plans:
+                if plan.is_active:
+                    active_plans.append(plan)
+
+            if not active_plans:
+                print("No active subscription plans available.")
+                continue
+
+            print("--- Available Subscription Plans ---")
+
+            for plan in active_plans:
+                print(
+                    f"{plan.plan_id}. {plan.name} - "
+                    f"Price: {plan.price} - "
+                    f"Duration: {plan.duration_days} days"
+                )
+
+            try:
+                plan_id = int(input("Enter plan ID: "))
+            except ValueError:
+                print("Invalid plan ID.")
+                continue
+
+            result = subscription_manager.renew_subscription(
+                member_username,
+                plan_id,
+                date.today(),
+                payment_manager
+            )
+
+            print(result.message)
 
         elif choice == "5":
             break
