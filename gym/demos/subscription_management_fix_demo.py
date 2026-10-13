@@ -3,7 +3,7 @@ import sys
 import os
 
 # اضافه کردن مسیر ریشه پروژه برای شناسایی پکیج gym
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from gym.models.subscription import SubscriptionPlan, Subscription
 from gym.data.subscription_repository import SubscriptionRepository
@@ -21,7 +21,9 @@ def mock_member_lookup(username):
 def run_demo():
     print("--- Starting Subscription Management Fix Demo ---\n")
     
-    repo = SubscriptionRepository()
+    demo_file = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..',
+                                            'demos', 'data', 'subscription_service_demo.json'))
+    repo = SubscriptionRepository(demo_file)
     manager = SubscriptionManager(repo, mock_member_lookup)
 
     # 1. Create a One Month plan

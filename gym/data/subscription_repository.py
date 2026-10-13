@@ -100,6 +100,25 @@ class SubscriptionRepository:
             self._next_plan_id = previous_id
             raise
 
+    def add_plan_and_subscription(self, plan, subscription):
+        previous_plan_id = self._next_plan_id
+        previous_subscription_id = self._next_subscription_id
+        plan.plan_id = previous_plan_id
+        subscription.plan_id = plan.plan_id
+        subscription.subscription_id = previous_subscription_id
+        self._plans[plan.plan_id] = plan
+        self._subscriptions[subscription.subscription_id] = subscription
+        self._next_plan_id += 1
+        self._next_subscription_id += 1
+        try:
+            self.save()
+        except OSError:
+            del self._plans[plan.plan_id]
+            del self._subscriptions[subscription.subscription_id]
+            self._next_plan_id = previous_plan_id
+            self._next_subscription_id = previous_subscription_id
+            raise
+
     def get_plan_by_id(self, plan_id):
         return self._plans.get(plan_id)
 

@@ -53,6 +53,19 @@ class SubscriptionManager:
             return OperationResult(False, str(error))
         return OperationResult(True, 'Plan deactivated successfully.', inactive_plan)
 
+    def register_subscription(self, member_username, name, price, duration_days, start_date):
+        try:
+            if not self.is_member_active_lookup(member_username):
+                return OperationResult(False, 'Subscription failed: Member does not exist or is inactive.')
+            plan = SubscriptionPlan(name, price, duration_days)
+            subscription = Subscription(member_username, None, start_date,
+                                        start_date + timedelta(days=duration_days))
+            self.repo.add_plan_and_subscription(plan, subscription)
+            return OperationResult(True, 'Subscription created successfully.',
+                                   self._subscription_info(subscription, plan))
+        except (ValueError, TypeError, OSError, StorageError) as error:
+            return OperationResult(False, str(error))
+
     def create_subscription(self, member_username, plan_id, start_date):
         try:
             if not self.is_member_active_lookup(member_username):

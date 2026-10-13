@@ -36,7 +36,8 @@ def _start_menu(auth, storage, hall_manager, class_repository=None,
         if choice == "1":
             user = _login(auth, "Manager")
             if user is not None:
-                manager_menu(user, storage, hall_manager, class_repository)
+                manager_menu(user, storage, hall_manager, class_repository,
+                             subscription_manager, payment_manager)
         elif choice == "2":
             user = _login(auth, "Coach")
             if user is not None:

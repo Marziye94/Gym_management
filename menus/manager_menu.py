@@ -1,3 +1,6 @@
+from gym.data.errors import StorageError
+from gym.data.transaction_repository import TransactionRepository
+from menus.member_menu import _create_subscription_manager
 from gym.data.class_repository import ClassRepository
 from gym.manager.class_manager import ClassManager
 from gym.manager.user_manager import UserManager
@@ -8,7 +11,8 @@ from menus.manager_menus.manage_subscriptions import manage_subscriptions_menu
 from menus.manager_menus.show_reports import show_reports
 
 
-def manager_menu(user, user_storage, hall_manager, class_repository=None):
+def manager_menu(user, user_storage, hall_manager, class_repository=None,
+                 subscription_manager=None, payment_manager=None):
     if user.role != "Manager" or not user.is_active:
         print("Only an active Manager can enter this panel.")
         return
@@ -40,7 +44,14 @@ def manager_menu(user, user_storage, hall_manager, class_repository=None):
             manage_classes_menu(class_manager)
 
         elif choice == "4":
-            manage_subscriptions_menu()
+            try:
+                if subscription_manager is None:
+                    subscription_manager = _create_subscription_manager(user_storage)
+                transactions = (payment_manager.transaction_repository if payment_manager is not None
+                                else TransactionRepository())
+                manage_subscriptions_menu(subscription_manager, transactions.load_all)
+            except (OSError, ValueError, StorageError) as error:
+                print("Could not open subscription management:", error)
 
         elif choice == "5":
             show_reports()

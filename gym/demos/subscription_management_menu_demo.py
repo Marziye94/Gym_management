@@ -1,0 +1,64 @@
+"""Run the real subscription menu with separate demo-only data."""
+import os
+import sys
+from datetime import date
+
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, PROJECT_ROOT)
+
+from gym.auth_service import AuthService
+from gym.data.subscription_repository import SubscriptionRepository
+from gym.data.transaction_repository import TransactionRepository
+from gym.data.user_storage import UserStorage
+from gym.data.wallet_repository import WalletRepository
+from gym.financial.Bank import API
+from gym.manager.payment_manager import PaymentManager
+from menus.member_menu import _create_subscription_manager
+from menus.manager_menus.manage_subscriptions import manage_subscriptions_menu
+
+DATA_DIR = os.path.join(PROJECT_ROOT, "demos", "data")
+
+
+def run_demo():
+    os.makedirs(DATA_DIR, exist_ok=True)
+    users = UserStorage(os.path.join(DATA_DIR, "subscription_menu_users.json"))
+    subscriptions_path = os.path.join(DATA_DIR, "subscription_menu_subscriptions.json")
+    transactions_path = os.path.join(DATA_DIR, "subscription_menu_transactions.txt")
+    wallets_path = os.path.join(DATA_DIR, "subscription_menu_wallets.json")
+    users.save_users([])
+    for path, content in ((subscriptions_path, '{"plans": [], "subscriptions": []}'),
+                          (transactions_path, ""), (wallets_path, "{}")):
+        with open(path, "w", encoding="utf-8") as file:
+            file.write(content)
+    auth = AuthService(users)
+    for name, username in (("Reza", "reza123"), ("Sara", "sara123")):
+        result = auth.register_user(name, username, "Member123@", "Member")
+        if not result["success"]:
+            print(result["message"])
+            return
+    repository = SubscriptionRepository(subscriptions_path)
+    manager = _create_subscription_manager(users, repository)
+    transactions = TransactionRepository(transactions_path)
+    payments = PaymentManager(WalletRepository(wallets_path), transactions, API())
+    plan_result = manager.create_plan("One Month", 5000, 30)
+    if not plan_result.success:
+        print(plan_result.message)
+        return
+    success, message = payments.charge_wallet("reza123", "1234567890123456", 12,
+                                            1408, "123456", "123", 10000)
+    if not success:
+        print(message)
+        return
+    result = manager.renew_subscription("reza123", plan_result.data.plan_id, date.today(), payments)
+    print(result.message)
+    if not result.success:
+        return
+    print("Demo members: reza123 and sara123. Reza already has a paid subscription.")
+    manage_subscriptions_menu(manager, transactions.load_all)
+    reloaded = _create_subscription_manager(users, SubscriptionRepository(subscriptions_path))
+    status, info = reloaded.get_member_status("reza123", date.today())
+    print("Reloaded Reza subscription:", status, info)
+
+
+if __name__ == "__main__":
+    run_demo()
