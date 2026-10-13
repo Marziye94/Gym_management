@@ -1,0 +1,46 @@
+from gym.manager.user_manager import UserManager
+from menus.manager_menus.manage_users import manage_users_menu
+from menus.manager_menus.manage_halls import manage_halls_menu
+from menus.manager_menus.manage_classes import manage_classes_menu
+from menus.manager_menus.manage_subscriptions import manage_subscriptions_menu
+from menus.manager_menus.show_reports import show_reports
+
+
+def manager_menu(user, user_storage):
+    if user.role != "Manager" or not user.is_active:
+        print("Only an active Manager can enter this panel.")
+        return
+    user_manager = UserManager(user, user_storage)
+    print("Welcome, " + user.name + " (" + user.username + ")")
+
+    while True:
+        print("--- Manager Panel ---")
+        print("1. User Management")
+        print("2. Hall Management")
+        print("3. Classes Management")
+        print("4. Subscription Management")
+        print("5. Reports")
+        print("6. Logout")
+
+        choice = input("Choose an option: ")
+
+        if choice == "1":
+            manage_users_menu(user_manager)
+
+        elif choice == "2":
+            manage_halls_menu()
+
+        elif choice == "3":
+            manage_classes_menu()
+
+        elif choice == "4":
+            manage_subscriptions_menu()
+
+        elif choice == "5":
+            show_reports()
+
+        elif choice == "6":
+            break
+
+        else:
+            print("Invalid choice. Please try again.")
