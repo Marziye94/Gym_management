@@ -54,6 +54,7 @@ class HallManager:
         if hall is None:
             return OperationResult(False, f"Hall '{name}' was not found.")
         hall.deactivate()
+        self.repository.update(hall)
         return OperationResult(True, "Hall deactivated successfully.", hall)
 
     def activate_hall(self, name):
@@ -61,4 +62,5 @@ class HallManager:
         if hall is None:
             return OperationResult(False, f"Hall '{name}' was not found.")
         hall.activate()
+        self.repository.update(hall)
         return OperationResult(True, "Hall activated successfully.", hall)

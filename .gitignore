@@ -218,6 +218,8 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+gym/data/halls.json
+demos/data/
 
 # Authentication user storage
 gym/data/users.json
