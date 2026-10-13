@@ -3,7 +3,7 @@ from gym.models.transaction import Transaction
 
 
 class TransactionRepository:
-    def __init__(self, file_path="transactions.txt"):
+    def __init__(self, file_path="gym/data/transactions.txt"):
         self.file_path = file_path
 
     def save(self, transaction):

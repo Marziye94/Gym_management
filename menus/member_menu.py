@@ -1,5 +1,6 @@
 from menus.member_menus.wallet_menu import wallet_menu
-def member_menu():
+
+def member_menu(member_username, payment_manager):
     while True:
         print("--- Member Panel ---")
         print("1. Profile and Subscription Status")
@@ -13,7 +14,7 @@ def member_menu():
         if choice == "1":
             pass
         elif choice == "2":
-            wallet_menu()
+            wallet_menu(member_username, payment_manager)
         elif choice == "3":
             pass
         elif choice == "4":

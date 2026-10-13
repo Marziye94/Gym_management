@@ -20,7 +20,7 @@ class PaymentManager:
         if amount <= 0 or isinstance(amount, bool):
             return None
         try:
-            amount = int(amount)
+            amount = float(amount)
         except (ValueError,TypeError):
             return None
         return amount
@@ -98,14 +98,14 @@ class PaymentManager:
 
     def get_member_transactions(self, member_username):
         if not self._validate_member(member_username):
-            return [] , "Unsuccessful"
+            return []
         
         try:
             transactions = self.transaction_repository.get_member_transactions(member_username)
         except (OSError, ValueError, TypeError, AttributeError):
-            return [] , "Unsuccessful"
+            return []
 
         if transactions is None:
-            return [] , "Unsuccessful"
+            return []
 
-        return True, transactions
+        return transactions

@@ -4,18 +4,18 @@ from gym.data.transaction_repository import TransactionRepository
 
 
 class Wallet:
-    def __init__(self, member_username):
+    def __init__(self, member_username, balance=0):
         if not isinstance(member_username, str) or not member_username.strip():
             raise ValueError("Member username cannot be empty")
         self.member_username = member_username
-        self.__balance = 0
+        self.__balance = balance
         
     @staticmethod
     def _validate_amount(amount):
         if amount <= 0 or isinstance(amount, bool):
             return None
         try:
-            amount = int(amount)
+            amount = float(amount)
         except (ValueError,TypeError):
             return None
         return amount
