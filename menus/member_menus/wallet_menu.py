@@ -1,7 +1,8 @@
 from datetime import date
+from getpass import getpass
 
 def wallet_menu(member_username, payment_manager, subscription_manager):
-    
+
     while True:
         print("1. View Balance")
         print("2. Charge Wallet")
@@ -29,26 +30,29 @@ def wallet_menu(member_username, payment_manager, subscription_manager):
                 card = input("Enter card number: ")
                 exp_month = int(input("Enter expiry month: "))
                 exp_year = int(input("Enter expiry year: "))
-                password = input("Enter card password: ")
-                cvv2 = input("Enter CVV2: ")
+                password = getpass("Enter card password: ")
+                cvv2 = getpass("Enter CVV2: ")
 
                 success, message = payment_manager.charge_wallet(
-                    member_username,
-                    amount,
-                    card,
-                    exp_month,
-                    exp_year,
-                    password,
-                    cvv2
+                    member_username=member_username,
+                    amount=amount,
+                    card=card,
+                    exp_month=exp_month,
+                    exp_year=exp_year,
+                    password=password,
+                    cvv2=cvv2,
                 )
 
                 print(message)
 
-            except (ValueError, TypeError):
+            except (ValueError, TypeError, OSError):
                 print("Invalid input. Please enter valid numbers.")
 
         elif choice == "3":
-            transactions = payment_manager.get_member_transactions(member_username)
+            success, transactions = payment_manager.get_member_transactions(member_username)
+            if not success:
+                print("Could not load transaction history.")
+                continue
 
             if not transactions:
                 print("No transactions found.")

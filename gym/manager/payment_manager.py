@@ -14,21 +14,15 @@ class PaymentManager:
         if not isinstance(member_username, str) or not member_username.strip():
             return None
         return True
-    
+
     @staticmethod
     def _validate_amount(amount):
-        if amount <= 0 or isinstance(amount, bool):
-            return None
-        try:
-            amount = float(amount)
-        except (ValueError,TypeError):
-            return None
-        return amount
+        return Wallet._validate_amount(amount)
 
     def get_wallet(self, member_username):
         if self._validate_member(member_username) is None:
-            return False, "Invalid member username."
-        
+            raise ValueError("Invalid member username.")
+
         wallet = self.wallet_repository.get_or_create_wallet(member_username)
 
         return wallet
@@ -61,10 +55,9 @@ class PaymentManager:
             payment_id=payment_id
         )
 
-        if not self.transaction_repository.save(transaction):
-            return False, "Transaction could not be saved. "
-        
-        wallet.increase_balance(amount)
+        success, message = self._record_payment(wallet, transaction, True)
+        if not success:
+            return False, message
         return True, "Wallet charged successfully."
 
     def pay_from_wallet(self, member_username, amount, description="Wallet payment"):
@@ -90,22 +83,62 @@ class PaymentManager:
             description=description,
             payment_id=payment_id
         )
-        if not self.transaction_repository.save(transaction):
-            return False, "Transaction could not be saved. "
-
-        wallet.decrease_balance(amount)
+        success, message = self._record_payment(wallet, transaction, False)
+        if not success:
+            return False, message
         return True, "Payment completed successfully."
 
     def get_member_transactions(self, member_username):
         if not self._validate_member(member_username):
-            return []
-        
+            return False, []
+
         try:
             transactions = self.transaction_repository.get_member_transactions(member_username)
         except (OSError, ValueError, TypeError, AttributeError):
-            return []
+            return False, []
 
         if transactions is None:
-            return []
+            return False, []
 
-        return transactions
+        return True, transactions
+
+    def refund_to_wallet(self, member_username, amount, description):
+        amount = self._validate_amount(amount)
+        if not self._validate_member(member_username) or amount is None:
+            return False, "Invalid refund details."
+        wallet = self.get_wallet(member_username)
+        transaction = Transaction(
+            member_username=member_username,
+            transaction_type="wallet_refund",
+            amount=amount,
+            description=description,
+            payment_id=self.bank_api.generate_payment_id(amount, member_username),
+        )
+        return self._record_payment(wallet, transaction, True)
+
+    def _record_payment(self, wallet, transaction, is_charge):
+        if is_charge:
+            success, message = wallet.increase_balance(transaction.amount)
+        else:
+            success, message = wallet.decrease_balance(transaction.amount)
+        if not success:
+            return False, message
+        try:
+            self.wallet_repository.save()
+        except (OSError, ValueError):
+            self._undo_balance_change(wallet, transaction.amount, is_charge)
+            return False, "Wallet balance could not be saved."
+        if not self.transaction_repository.save(transaction):
+            self._undo_balance_change(wallet, transaction.amount, is_charge)
+            try:
+                self.wallet_repository.save()
+            except (OSError, ValueError):
+                return False, "Transaction failed and wallet rollback could not be saved."
+            return False, "Transaction could not be saved."
+        return True, "Payment saved successfully."
+
+    def _undo_balance_change(self, wallet, amount, is_charge):
+        if is_charge:
+            wallet.decrease_balance(amount)
+        else:
+            wallet.increase_balance(amount)

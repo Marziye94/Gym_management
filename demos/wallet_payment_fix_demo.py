@@ -10,7 +10,7 @@ sys.path.insert(0, PROJECT_ROOT)
 from gym.data.wallet_repository import WalletRepository
 from gym.data.transaction_repository import TransactionRepository
 from gym.manager.payment_manager import PaymentManager
-from gym.financial.bank import API
+from gym.financial.Bank import API
 
 
 USERNAME = "reza123"
@@ -24,16 +24,19 @@ TRANSACTION_FILE = os.path.join(
     DATA_DIR,
     "wallet_transactions_fix_demo.txt"
 )
+WALLET_FILE = os.path.join(DATA_DIR, "wallets_fix_demo.json")
 
 
 def main():
     os.makedirs(DATA_DIR, exist_ok=True)
 
-    # Reset only the demo transaction file.
+    # Reset only the demo files.
     with open(TRANSACTION_FILE, "w", encoding="utf-8"):
         pass
+    with open(WALLET_FILE, "w", encoding="utf-8") as file:
+        file.write("{}")
 
-    wallet_repository = WalletRepository()
+    wallet_repository = WalletRepository(WALLET_FILE)
     transaction_repository = TransactionRepository(
         TRANSACTION_FILE
     )
