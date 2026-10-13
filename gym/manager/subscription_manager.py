@@ -8,9 +8,9 @@ class OperationResult:
         self.data = data
 
 class SubscriptionManager:
-    def __init__(self, repository, member_lookup):
+    def __init__(self, repository, is_member_active_lookup):
         self.repo = repository
-        self.member_lookup = member_lookup
+        self.is_member_active_lookup = is_member_active_lookup
 
     def create_plan(self, name, price, duration_days):
         try:
@@ -18,72 +18,50 @@ class SubscriptionManager:
             self.repo.add_plan(plan)
             return OperationResult(True, "Plan created successfully.", plan)
         except ValueError as e:
-            return OperationResult(False, str(e))
-
-    def get_plan(self, plan_id):
-        return self.repo.get_plan_by_id(plan_id)
-
-    def list_plans(self):
-        return self.repo.get_all_plans()
-
-    def update_plan(self, plan_id, name, price, duration_days):
-        plan = self.repo.get_plan_by_id(plan_id)
-        if not plan:
-            return OperationResult(False, "Plan not found.")
-        
-        try:
-            temp_plan = SubscriptionPlan(name, price, duration_days, plan_id, plan.is_active)
-            self.repo.update_plan(temp_plan)
-            return OperationResult(True, "Plan updated successfully.", temp_plan)
-        except ValueError as e:
-            return OperationResult(False, str(e))
-
-    def deactivate_plan(self, plan_id):
-        plan = self.repo.get_plan_by_id(plan_id)
-        if not plan:
-            return OperationResult(False, "Plan not found.")
-        
-        plan.is_active = False
-        self.repo.update_plan(plan)
-        return OperationResult(True, "Plan deactivated successfully.", plan)
+            return OperationResult(False, f"Validation failed: {str(e)}")
 
     def create_subscription(self, member_username, plan_id, start_date):
-        member_username = member_username.strip()
-        if not member_username:
-            return OperationResult(False, "Username cannot be empty.")
-            
-        if not self.member_lookup(member_username):
-            return OperationResult(False, "Unknown member username.")
+        # بررسی وجود و فعال بودن کاربر
+        is_active_member = self.is_member_active_lookup(member_username)
+        if not is_active_member:
+            return OperationResult(False, "Subscription failed: Member does not exist or is inactive.")
 
         plan = self.repo.get_plan_by_id(plan_id)
-        if not plan:
-            return OperationResult(False, "Plan not found.")
-            
-        if not plan.is_active:
-            return OperationResult(False, "Cannot subscribe to an inactive plan.")
+        if not plan or not plan.is_active:
+            return OperationResult(False, "Subscription failed: Plan not found or inactive.")
 
-        end_date = start_date + timedelta(days=plan.duration_days)
-        
         try:
-            subscription = Subscription(member_username, plan_id, start_date, end_date)
-            self.repo.add(subscription)
-            return OperationResult(True, "Subscription created successfully.", subscription)
-        except ValueError as e:
-            return OperationResult(False, str(e))
-
-    def get_subscription(self, subscription_id):
-        return self.repo.get_by_id(subscription_id)
-
-    def get_member_subscriptions(self, member_username):
-        return self.repo.get_by_member_username(member_username)
-
-    def check_subscription(self, member_username, current_date):
-        if not self.member_lookup(member_username):
-            return OperationResult(False, "Unknown member username.")
+            end_date = start_date + timedelta(days=plan.duration_days)
+            sub = Subscription(member_username, plan_id, start_date, end_date)
+            self.repo.add_subscription(sub)
             
-        subscriptions = self.repo.get_by_member_username(member_username)
-        for sub in subscriptions:
-            if sub.is_active(current_date):
-                return OperationResult(True, "Active subscription found.", sub)
-                
-        return OperationResult(False, "No active subscription found for this date.")
+            # برگرداندن اطلاعات کامل طبق خواسته صورت مسئله
+            subscription_info = {
+                "member_username": sub.member_username,
+                "subscription_type": plan.name,
+                "amount": plan.price,
+                "start_date": sub.start_date,
+                "end_date": sub.end_date,
+            }
+            return OperationResult(True, "Subscription created successfully.", subscription_info)
+        except (ValueError, TypeError) as e:
+            return OperationResult(False, f"Validation failed: {str(e)}")
+
+    def get_member_status(self, member_username, current_date):
+        subs = self.repo.get_subscriptions_by_username(member_username)
+        if not subs:
+            return "No Subscription", None
+
+        # پیدا کردن جدیدترین اشتراک کاربر برای بررسی وضعیت
+        latest_sub = max(subs, key=lambda s: s.end_date)
+        status = latest_sub.get_status(current_date)
+        
+        plan = self.repo.get_plan_by_id(latest_sub.plan_id)
+        info = {
+            "subscription_type": plan.name,
+            "amount": plan.price,
+            "start_date": latest_sub.start_date,
+            "end_date": latest_sub.end_date,
+            "status": status
+        }
+        return status, info

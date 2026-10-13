@@ -1,5 +1,5 @@
 def wallet_menu():
-    
+
     while True:
         print("1. View Balance")
         print("2. Add Funds")

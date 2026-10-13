@@ -1,13 +1,14 @@
 import os
 import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, PROJECT_ROOT)
 
 from gym.data.class_repository import ClassRepository
 from gym.manager.class_manager import ClassManager
 from menus.manager_menus.manage_classes import manage_classes_menu
 
 def run_menu_demo():
-    demo_file = "demos/data/classes_demo.json"
+    demo_file = os.path.join(PROJECT_ROOT, "demos", "data", "classes_demo.json")
 
 
     os.makedirs(os.path.dirname(demo_file), exist_ok=True)

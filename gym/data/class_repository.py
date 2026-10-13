@@ -3,8 +3,11 @@ import os
 from gym.models.gym_class import GymClass
 
 
+DEFAULT_DATA_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "classes.json")
+
+
 class ClassRepository:
-    def __init__(self, data_file="gym/data/classes.json"):
+    def __init__(self, data_file=DEFAULT_DATA_FILE):
         self.data_file = data_file
         self.classes = {}
         self.load()
@@ -65,27 +68,39 @@ class ClassRepository:
 
             with open(self.data_file, "w", encoding="utf-8") as file:
                 json.dump(data_list, file, indent=4)
+            return True
         except Exception:
             print("Error: Could not save class data.")
+            return False
 
     def add(self, gym_class):
         if gym_class.name in self.classes:
             return False
         self.classes[gym_class.name] = gym_class
-        self.save()
+        if not self.save():
+            del self.classes[gym_class.name]
+            return False
         return True
 
     def get_class(self, class_name):
-        if not class_name:
+        if not class_name or not isinstance(class_name, str):
             return None
-        return self.classes.get(str(class_name).strip(), None)
+        return self.classes.get(class_name.strip(), None)
 
     def get_all(self):
         return list(self.classes.values())
 
-    def update(self, gym_class):
-        if gym_class.name not in self.classes:
+    def update(self, gym_class, old_name=None):
+        target_name = old_name.strip() if old_name else gym_class.name
+        if target_name not in self.classes:
             return False
+        previous_classes = self.classes.copy()
+        if target_name != gym_class.name:
+            if gym_class.name in self.classes:
+                return False
+            del self.classes[target_name]
         self.classes[gym_class.name] = gym_class
-        self.save()
+        if not self.save():
+            self.classes = previous_classes
+            return False
         return True
