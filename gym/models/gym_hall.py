@@ -1,11 +1,12 @@
 class GymHall:
-
-    def __init__(self, name, capacity, equipment=None):
+    def __init__(self, name, capacity, equipment=None, is_active=True):
         self.check(name, capacity)
+        if type(is_active) is not bool:
+            raise ValueError("Status must be active or inactive.")
         self.name = name.strip()
         self.capacity = capacity
         self.equipment = equipment or []
-        self.is_active = True
+        self.is_active = is_active
 
     @staticmethod
     def check(name, capacity):
