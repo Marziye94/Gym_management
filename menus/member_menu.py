@@ -14,7 +14,7 @@ def member_menu(member_username, payment_manager):
         if choice == "1":
             pass
         elif choice == "2":
-            wallet_menu(member_username, payment_manager)
+            wallet_menu(member_username, payment_manager, subscription_manager)
         elif choice == "3":
             pass
         elif choice == "4":
