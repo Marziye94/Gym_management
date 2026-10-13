@@ -1,22 +1,28 @@
-from gym.financial.bank import API
-from gym.models.transaction import Transaction
-from gym.data.transaction_repository import TransactionRepository
+import math
 
 
 class Wallet:
-    def __init__(self, member_username):
+    def __init__(self, member_username, balance=0):
         if not isinstance(member_username, str) or not member_username.strip():
             raise ValueError("Member username cannot be empty")
         self.member_username = member_username
-        self.__balance = 0
-        
+        try:
+            balance = float(balance)
+        except (ValueError, TypeError):
+            raise ValueError("Wallet balance must be a non-negative number.")
+        if not math.isfinite(balance) or balance < 0:
+            raise ValueError("Wallet balance must be a non-negative number.")
+        self.__balance = balance
+
     @staticmethod
     def _validate_amount(amount):
-        if amount <= 0 or isinstance(amount, bool):
+        if isinstance(amount, bool):
             return None
         try:
-            amount = int(amount)
+            amount = float(amount)
         except (ValueError,TypeError):
+            return None
+        if not math.isfinite(amount) or amount <= 0:
             return None
         return amount
 
@@ -25,7 +31,7 @@ class Wallet:
         amount = self._validate_amount(amount)
         if amount is None:
             return False, "Amount must be a valid positive number."
-        
+
         self.__balance += amount
         return True, "Wallet balance increased successfully."
 
@@ -33,7 +39,7 @@ class Wallet:
         amount = self._validate_amount(amount)
         if amount is None:
             return False, "Amount must be a valid positive number."
-        
+
         if amount > self.__balance:
             return False, "Insufficient balance"
 

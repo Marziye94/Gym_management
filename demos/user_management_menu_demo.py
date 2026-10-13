@@ -10,8 +10,14 @@ from gym.auth_service import AuthService
 from gym.data.class_repository import ClassRepository
 from gym.data.errors import StorageError
 from gym.data.hall_repository import HallRepository
+from gym.data.subscription_repository import SubscriptionRepository
+from gym.data.transaction_repository import TransactionRepository
+from gym.data.wallet_repository import WalletRepository
 from gym.data.user_storage import UserStorage
+from gym.financial.Bank import API
+from gym.manager.payment_manager import PaymentManager
 from menus.main_menu import main_menu
+from menus.member_menu import _create_subscription_manager
 from menus.manager_menus.manage_users import display_user
 
 
@@ -40,7 +46,15 @@ def main():
     print("Demo ready. Log in using the predefined Manager account.")
     halls = HallRepository(DEMO_FILE.with_name("halls_user_menu_demo.json"))
     classes = ClassRepository(DEMO_FILE.with_name("classes_user_menu_demo.json"))
-    main_menu(storage, halls, classes)
+    payments = PaymentManager(
+        WalletRepository(DEMO_FILE.with_name("wallets_user_menu_demo.json")),
+        TransactionRepository(DEMO_FILE.with_name("transactions_user_menu_demo.txt")),
+        API(),
+    )
+    subscriptions = _create_subscription_manager(
+        storage, SubscriptionRepository(DEMO_FILE.with_name("subscriptions_user_menu_demo.json"))
+    )
+    main_menu(storage, halls, classes, payments, subscriptions)
 
     reloaded_storage = UserStorage(DEMO_FILE)
     reloaded_auth = AuthService(reloaded_storage)

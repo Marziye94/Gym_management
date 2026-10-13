@@ -2,12 +2,16 @@ import os
 from gym.models.transaction import Transaction
 
 
+DEFAULT_DATA_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "transactions.txt")
+
+
 class TransactionRepository:
-    def __init__(self, file_path="transactions.txt"):
+    def __init__(self, file_path=DEFAULT_DATA_FILE):
         self.file_path = file_path
 
     def save(self, transaction):
         try:
+            os.makedirs(os.path.dirname(os.path.abspath(self.file_path)), exist_ok=True)
             with open(self.file_path, "a", encoding="utf-8") as file:
                 file.write(transaction.to_text())
             return True
@@ -40,8 +44,8 @@ class TransactionRepository:
 
                     except (ValueError, TypeError):
                         continue
-        except OSError:
-            return transactions
+        except (OSError, UnicodeError):
+            raise OSError("Could not load transaction history.")
 
         return transactions
 
