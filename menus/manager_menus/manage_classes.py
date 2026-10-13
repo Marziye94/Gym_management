@@ -26,7 +26,12 @@ def edit_class_menu(class_manager):
         return
 
     gym_class = res.data
-    status = "Active" if gym_class.is_active else "Inactive"
+
+    if gym_class.is_active:
+        status = "Active"
+    else:
+        status = "Inactive"
+
 
     print(f"Current title: {gym_class.name}")
     print(f"Current sport type: {gym_class.exercise}")
@@ -65,7 +70,12 @@ def change_class_status_menu(class_manager):
         return
 
     gym_class = res.data
-    status = "Active" if gym_class.is_active else "Inactive"
+
+    if gym_class.is_active:
+        status = "Active"
+    else:
+        status = "Inactive"
+
 
     print(f"Current status: {status}\n")
     print("1. Activate")
@@ -94,7 +104,10 @@ def view_classes_menu(class_manager):
         return
 
     for gym_class in classes:
-        status = "Active" if gym_class.is_active else "Inactive"
+        if gym_class.is_active:
+            status = "Active"
+        else:
+            status = "Inactive"
 
         print(f"Title: {gym_class.name}")
         print(f"Sport Type: {gym_class.exercise}")
