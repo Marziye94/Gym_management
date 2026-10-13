@@ -6,7 +6,7 @@ from menus.manager_menus.manage_subscriptions import manage_subscriptions_menu
 from menus.manager_menus.show_reports import show_reports
 
 
-def manager_menu(user, user_storage):
+def manager_menu(user, user_storage, hall_manager):
     if user.role != "Manager" or not user.is_active:
         print("Only an active Manager can enter this panel.")
         return
@@ -28,7 +28,7 @@ def manager_menu(user, user_storage):
             manage_users_menu(user_manager)
 
         elif choice == "2":
-            manage_halls_menu()
+            manage_halls_menu(hall_manager)
 
         elif choice == "3":
             manage_classes_menu()

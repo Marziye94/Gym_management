@@ -1,7 +1,8 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, PROJECT_ROOT)
 
 from gym.data.hall_repository import HallRepository
 from gym.manager.hall_manager import HallManager
@@ -15,7 +16,10 @@ def show_hall(hall):
 
 
 def main():
-    hall_manager = HallManager(HallRepository())
+    demo_data_file = os.path.join(PROJECT_ROOT, "demos", "data", "halls_fix_demo.json")
+    if os.path.exists(demo_data_file):
+        os.remove(demo_data_file)
+    hall_manager = HallManager(HallRepository(data_file=demo_data_file))
 
     hall_name = "Main Hall"
     capacity = 20

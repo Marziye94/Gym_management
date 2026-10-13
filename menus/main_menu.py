@@ -1,22 +1,26 @@
 from getpass import getpass
 
 from gym.auth_service import AuthService
+from gym.data.hall_repository import HallRepository
 from gym.data.user_storage import UserStorage
+from gym.manager.hall_manager import HallManager
 from menus.manager_menu import manager_menu
 from menus.coach_menu import coach_menu
 from menus.member_menu import member_menu
 
 
-def main_menu(user_storage=None):
+def main_menu(user_storage=None, hall_repository=None):
     storage = user_storage if user_storage is not None else UserStorage()
+    halls = hall_repository if hall_repository is not None else HallRepository()
     auth = AuthService(storage)
+    hall_manager = HallManager(halls)
     try:
-        _start_menu(auth, storage)
+        _start_menu(auth, storage, hall_manager)
     except (EOFError, KeyboardInterrupt):
         print("\nProgram closed.")
 
 
-def _start_menu(auth, storage):
+def _start_menu(auth, storage, hall_manager):
     while True:
         print("--- Gym Management System ---")
         print("1. Manager Login")
@@ -29,7 +33,7 @@ def _start_menu(auth, storage):
         if choice == "1":
             user = _login(auth, "Manager")
             if user is not None:
-                manager_menu(user, storage)
+                manager_menu(user, storage, hall_manager)
         elif choice == "2":
             user = _login(auth, "Coach")
             if user is not None:
