@@ -1,6 +1,6 @@
 from menus.member_menus.wallet_menu import wallet_menu
 
-def member_menu(member_username, payment_manager):
+def member_menu(member_username, payment_manager, subscription_manager):
     while True:
         print("--- Member Panel ---")
         print("1. Profile and Subscription Status")
