@@ -9,18 +9,18 @@ from menus.coach_menu import coach_menu
 from menus.member_menu import member_menu
 
 
-def main_menu(user_storage=None, hall_repository=None):
+def main_menu(user_storage=None, hall_repository=None, class_repository=None):
     storage = user_storage if user_storage is not None else UserStorage()
     halls = hall_repository if hall_repository is not None else HallRepository()
     auth = AuthService(storage)
     hall_manager = HallManager(halls)
     try:
-        _start_menu(auth, storage, hall_manager)
+        _start_menu(auth, storage, hall_manager, class_repository)
     except (EOFError, KeyboardInterrupt):
         print("\nProgram closed.")
 
 
-def _start_menu(auth, storage, hall_manager):
+def _start_menu(auth, storage, hall_manager, class_repository=None):
     while True:
         print("--- Gym Management System ---")
         print("1. Manager Login")
@@ -33,7 +33,7 @@ def _start_menu(auth, storage, hall_manager):
         if choice == "1":
             user = _login(auth, "Manager")
             if user is not None:
-                manager_menu(user, storage, hall_manager)
+                manager_menu(user, storage, hall_manager, class_repository)
         elif choice == "2":
             user = _login(auth, "Coach")
             if user is not None:

@@ -1,7 +1,11 @@
+import os
+import sys
+
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, PROJECT_ROOT)
+
 from gym.manager.class_manager import ClassManager
 from gym.data.class_repository import ClassRepository
-import sys
-sys.path.append(".")
 
 
 def show_class(gym_class):
@@ -45,7 +49,11 @@ def check_hall(name):
     return False
 
 
-repo = ClassRepository()
+demo_file = os.path.join(PROJECT_ROOT, "demos", "data", "classes_fix_demo.json")
+os.makedirs(os.path.dirname(demo_file), exist_ok=True)
+with open(demo_file, "w", encoding="utf-8") as file:
+    file.write("[]")
+repo = ClassRepository(data_file=demo_file)
 manager = ClassManager(repo, check_coach, check_hall)
 
 # Step 1: Create a Class
@@ -64,14 +72,14 @@ print()
 
 
 res2 = manager.update_class(
-    original_name="Morning Yoga",
+    current_name="Morning Yoga",
     new_name="Evening Fitness",
-    exercise="Fitness",
-    coach_name="Reza",
-    hall_name="Studio Hall",
-    day="Sunday",
-    time="18:00",
-    capacity=20
+    new_exercise="Fitness",
+    new_coach_name="Reza",
+    new_hall_name="Studio Hall",
+    new_day="Sunday",
+    new_time="18:00",
+    new_capacity=20
 )
 print("--- Updated Class ---\n")
 show_class(res2.data)
@@ -79,14 +87,14 @@ print()
 
 
 res3 = manager.update_class(
-    original_name="Evening Fitness",
+    current_name="Evening Fitness",
     new_name="Invalid Class",
-    exercise="Fitness",
-    coach_name="Inactive Coach",
-    hall_name="Studio Hall",
-    day="Monday",
-    time="19:00",
-    capacity=25
+    new_exercise="Fitness",
+    new_coach_name="Inactive Coach",
+    new_hall_name="Studio Hall",
+    new_day="Monday",
+    new_time="19:00",
+    new_capacity=25
 )
 print(res3.message)
 print()

@@ -92,7 +92,18 @@ class ClassManager:
             if not self.check_hall(clean_hall):
                 return OperationResult(False, f"Hall '{clean_hall}' does not exist or is inactive.")
 
-            gym_class.update_details(
+            updated_class = GymClass(
+                gym_class.name,
+                gym_class.exercise,
+                gym_class.coach_name,
+                gym_class.hall_name,
+                gym_class.day,
+                gym_class.time,
+                gym_class.capacity,
+                gym_class.remaining_capacity,
+                gym_class.is_active,
+            )
+            updated_class.update_details(
                 new_name,
                 new_exercise,
                 new_coach_name,
@@ -101,10 +112,10 @@ class ClassManager:
                 new_time,
                 new_capacity,
             )
-            if not self.repository.update(gym_class, old_name=clean_current):
+            if not self.repository.update(updated_class, old_name=clean_current):
                 return OperationResult(False, "Could not update the class.")
 
-            return OperationResult(True, "Class updated successfully.", gym_class)
+            return OperationResult(True, "Class updated successfully.", updated_class)
 
         except ValueError as error:
             return OperationResult(False, str(error))
@@ -121,8 +132,11 @@ class ClassManager:
             if not self.check_coach(clean_coach):
                 return OperationResult(False, f"Coach '{clean_coach}' does not exist or is inactive.")
 
+            previous_coach = gym_class.coach_name
             gym_class.assign_coach(clean_coach)
-            self.repository.update(gym_class)
+            if not self.repository.update(gym_class):
+                gym_class.coach_name = previous_coach
+                return OperationResult(False, "Could not save the coach assignment.")
             return OperationResult(True, "Coach assigned successfully.", gym_class)
         except ValueError as error:
             return OperationResult(False, str(error))
@@ -137,8 +151,11 @@ class ClassManager:
             if not self.check_hall(clean_hall):
                 return OperationResult(False, f"Hall '{clean_hall}' does not exist or is inactive.")
 
+            previous_hall = gym_class.hall_name
             gym_class.assign_hall(clean_hall)
-            self.repository.update(gym_class)
+            if not self.repository.update(gym_class):
+                gym_class.hall_name = previous_hall
+                return OperationResult(False, "Could not save the hall assignment.")
             return OperationResult(True, "Hall assigned successfully.", gym_class)
         except ValueError as error:
             return OperationResult(False, str(error))
@@ -148,8 +165,11 @@ class ClassManager:
         if not gym_class:
             return OperationResult(False, f"Class '{class_name}' was not found.")
 
+        previous_status = gym_class.is_active
         gym_class.deactivate()
-        self.repository.update(gym_class)
+        if not self.repository.update(gym_class):
+            gym_class.is_active = previous_status
+            return OperationResult(False, "Could not save the class status.")
         return OperationResult(True, "Class deactivated successfully.", gym_class)
 
     def activate_class(self, class_name):
@@ -157,6 +177,9 @@ class ClassManager:
         if not gym_class:
             return OperationResult(False, f"Class '{class_name}' was not found.")
 
+        previous_status = gym_class.is_active
         gym_class.activate()
-        self.repository.update(gym_class)
+        if not self.repository.update(gym_class):
+            gym_class.is_active = previous_status
+            return OperationResult(False, "Could not save the class status.")
         return OperationResult(True, "Class activated successfully.", gym_class)
