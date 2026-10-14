@@ -5,13 +5,13 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, PROJECT_ROOT)
 
 from gym.manager.workout_plan_manager import WorkoutPlanManager
-from gym.data.class_repository import ClassRepository
+from gym.classes.class_repository import ClassRepository
 from gym.data.errors import StorageError
 from gym.halls.hall_repository import HallRepository
 from gym.data.user_storage import UserStorage
 from gym.data.workout_plan_repository import WorkoutPlanRepository
 from gym.halls.hall_service import HallManager
-from gym.models.gym_class import GymClass
+from gym.classes.gym_class import GymClass
 from gym.models.user import User
 from menus.coach_menus.manage_workouts import show_plan
 from menus.coach_menus.view_classes import view_my_classes_menu

@@ -1,9 +1,9 @@
 import json
 import os
-from gym.models.gym_class import GymClass
+from gym.classes.gym_class import GymClass
 
 
-DEFAULT_DATA_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "classes.json")
+DEFAULT_DATA_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data", "classes.json"))
 
 
 class ClassRepository:

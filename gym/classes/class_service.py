@@ -1,4 +1,4 @@
-from gym.models.gym_class import GymClass
+from gym.classes.gym_class import GymClass
 
 
 class OperationResult:
