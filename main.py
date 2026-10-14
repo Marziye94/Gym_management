@@ -19,7 +19,7 @@ from gym.reports.report_service import ReportManager
 from gym.subscriptions.subscription_service import SubscriptionManager
 from gym.users.user_service import UserManager
 from gym.workouts.workout_plan_service import WorkoutPlanManager
-from menus.main_menu import main_menu
+from gym.menus.main_menu import main_menu
 
 
 DEFAULT_DATA_DIRECTORY = Path(__file__).resolve().parent / "gym" / "data"

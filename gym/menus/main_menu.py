@@ -1,8 +1,8 @@
 from getpass import getpass
 
-from menus.manager_menu import manager_menu
-from menus.coach_menu import coach_menu
-from menus.member_menu import member_menu
+from gym.menus.manager_menu import manager_menu
+from gym.menus.coach_menu import coach_menu
+from gym.menus.member_menu import member_menu
 
 
 def main_menu(application):

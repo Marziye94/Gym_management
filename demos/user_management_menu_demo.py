@@ -8,7 +8,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from gym.data.errors import StorageError
 from main import create_application
-from menus.main_menu import main_menu
+from gym.menus.main_menu import main_menu
 from gym.users.user_menu import display_user
 
 
