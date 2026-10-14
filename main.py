@@ -9,7 +9,7 @@ from gym.subscriptions.subscription_repository import SubscriptionRepository
 from gym.data.transaction_repository import TransactionRepository
 from gym.data.user_storage import UserStorage
 from gym.data.wallet_repository import WalletRepository
-from gym.data.workout_plan_repository import WorkoutPlanRepository
+from gym.workouts.workout_plan_repository import WorkoutPlanRepository
 from gym.financial.bank import API
 from gym.classes.class_service import ClassManager
 from gym.enrollments.enrollment_service import ClassEnrollmentManager
@@ -18,7 +18,7 @@ from gym.manager.payment_manager import PaymentManager
 from gym.manager.report_manager import ReportManager
 from gym.subscriptions.subscription_service import SubscriptionManager
 from gym.manager.user_manager import UserManager
-from gym.manager.workout_plan_manager import WorkoutPlanManager
+from gym.workouts.workout_plan_service import WorkoutPlanManager
 from menus.main_menu import main_menu
 
 

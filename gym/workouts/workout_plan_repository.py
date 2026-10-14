@@ -1,9 +1,9 @@
 import json
 import os
 
-from gym.models.workout_plan import Exercise, WorkoutPlan
+from gym.workouts.workout_plan import Exercise, WorkoutPlan
 
-DEFAULT_DATA_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "workout_plans.json")
+DEFAULT_DATA_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data", "workout_plans.json"))
 
 
 class WorkoutPlanRepository:

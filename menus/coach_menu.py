@@ -1,6 +1,6 @@
 from gym.data.errors import StorageError
-from menus.coach_menus.view_classes import view_my_classes_menu
-from menus.coach_menus.manage_workouts import manage_workouts_menu
+from gym.classes.coach_class_menu import view_my_classes_menu
+from gym.workouts.coach_workout_menu import manage_workouts_menu
 
 
 def coach_menu(user, application):

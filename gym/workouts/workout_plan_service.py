@@ -1,4 +1,4 @@
-from gym.models.workout_plan import Exercise, WorkoutPlan
+from gym.workouts.workout_plan import Exercise, WorkoutPlan
 
 
 class OperationResult:
