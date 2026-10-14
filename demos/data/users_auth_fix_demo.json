@@ -1,0 +1,29 @@
+[
+  {
+    "user_id": 1,
+    "name": "Gym Manager",
+    "username": "manager01",
+    "password": "Manager123@",
+    "role": "Manager",
+    "is_active": true,
+    "email": "manager@example.com"
+  },
+  {
+    "user_id": 2,
+    "name": "Reza",
+    "username": "reza123",
+    "password": "Reza123&",
+    "role": "Member",
+    "is_active": true,
+    "email": "reza@example.com"
+  },
+  {
+    "user_id": 3,
+    "name": "Gym Coach",
+    "username": "coach01",
+    "password": "Coach123@",
+    "role": "Coach",
+    "is_active": false,
+    "email": null
+  }
+]

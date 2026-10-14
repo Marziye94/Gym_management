@@ -21,37 +21,46 @@ class HallManager:
     def list_halls(self):
         return self.repository.get_all()
 
-    def create_hall(self, name, capacity, equipment=None):
+    def create_hall(self, name, capacity, equipment=None, is_active=True):
         try:
-            hall = GymHall(name, capacity, equipment)
+            hall = GymHall(name, capacity, equipment, is_active)
         except ValueError as error:
             return OperationResult(False, str(error))
         if self.get_hall(hall.name) is not None:
             return OperationResult(False, f"Hall '{hall.name}' already exists.")
         self.repository.add(hall)
-        return OperationResult(True, "Hall created.", hall)
+        return OperationResult(True, "Hall created successfully.", hall)
 
-    def update_hall(self, name, capacity, equipment=None):
-        hall = self.get_hall(name)
+    def update_hall(self, current_name, new_name, capacity, equipment=None):
+        hall = self.get_hall(current_name)
         if hall is None:
-            return OperationResult(False, f"Hall '{name}' was not found.")
+            return OperationResult(False, f"Hall '{current_name}' was not found.")
         try:
-            hall.update_details(name, capacity, equipment)
+            GymHall.check(new_name, capacity)
         except ValueError as error:
             return OperationResult(False, str(error))
-        self.repository.update(hall)
-        return OperationResult(True, "Hall updated.", hall)
+        new_name = new_name.strip()
+        if new_name != hall.name and self.get_hall(new_name) is not None:
+            return OperationResult(False, f"Hall '{new_name}' already exists.")
+        if equipment is None:
+            equipment = hall.equipment
+        old_name = hall.name
+        hall.update_details(new_name, capacity, equipment)
+        self.repository.update(hall, old_name)
+        return OperationResult(True, "Hall updated successfully.", hall)
 
     def deactivate_hall(self, name):
         hall = self.get_hall(name)
         if hall is None:
             return OperationResult(False, f"Hall '{name}' was not found.")
         hall.deactivate()
-        return OperationResult(True, "Hall deactivated.", hall)
+        self.repository.update(hall)
+        return OperationResult(True, "Hall deactivated successfully.", hall)
 
     def activate_hall(self, name):
         hall = self.get_hall(name)
         if hall is None:
             return OperationResult(False, f"Hall '{name}' was not found.")
         hall.activate()
-        return OperationResult(True, "Hall activated.", hall)
+        self.repository.update(hall)
+        return OperationResult(True, "Hall activated successfully.", hall)

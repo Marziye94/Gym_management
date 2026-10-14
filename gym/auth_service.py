@@ -1,7 +1,7 @@
 from gym.data.errors import StorageError
 from gym.data.user_storage import UserStorage
 from gym.models.user import ALLOWED_ROLES, User
-from gym.validators import validate_email, validate_password, validate_username
+from gym.validators import validate_email, validate_name, validate_password, validate_username
 
 
 def auth_result(success, message, user=None):
@@ -13,10 +13,14 @@ def auth_result(success, message, user=None):
 
 
 class AuthService:
-    def __init__(self):
-        self.user_storage = UserStorage()
+    def __init__(self, user_storage=None):
+        self.user_storage = user_storage if user_storage is not None else UserStorage()
 
-    def register_user(self, username, password, role, email=None):
+    def register_user(self, name, username, password, role, email=None, is_active=True):
+        name_result = validate_name(name)
+        if not name_result["is_valid"]:
+            return auth_result(False, name_result["message"])
+
         username_result = validate_username(username)
         if not username_result["is_valid"]:
             return auth_result(False, username_result["message"])
@@ -29,9 +33,12 @@ class AuthService:
         if not email_result["is_valid"]:
             return auth_result(False, email_result["message"])
 
-        if role not in ALLOWED_ROLES:
+        if not isinstance(role, str) or role not in ALLOWED_ROLES:
             message = "Role must be Manager, Coach, or Member."
             return auth_result(False, message)
+
+        if not isinstance(is_active, bool):
+            return auth_result(False, "Account status must be a Boolean value.")
 
         try:
             users = self.user_storage.load_users()
@@ -46,7 +53,7 @@ class AuthService:
             email = None
 
         user_id = self.user_storage.get_next_user_id(users)
-        user = User(user_id, username, password, role, True, email)
+        user = User(user_id, name, username, password, role, is_active, email)
         users.append(user)
 
         try:
@@ -58,6 +65,8 @@ class AuthService:
 
     def login(self, username, password):
         if not isinstance(username, str) or not isinstance(password, str):
+            return auth_result(False, "Invalid username or password.")
+        if not username.strip() or not password.strip():
             return auth_result(False, "Invalid username or password.")
 
         try:
