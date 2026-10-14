@@ -3,7 +3,7 @@ from menus.manager_menus.manage_users import manage_users_menu
 from gym.halls.hall_menu import manage_halls_menu
 from gym.classes.class_menu import manage_classes_menu
 from gym.subscriptions.subscription_menu import manage_subscriptions_menu
-from menus.manager_menus.show_reports import show_reports
+from gym.reports.report_menu import show_reports
 
 
 def manager_menu(user, application):

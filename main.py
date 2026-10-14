@@ -15,7 +15,7 @@ from gym.classes.class_service import ClassManager
 from gym.enrollments.enrollment_service import ClassEnrollmentManager
 from gym.halls.hall_service import HallManager
 from gym.payments.payment_service import PaymentManager
-from gym.manager.report_manager import ReportManager
+from gym.reports.report_service import ReportManager
 from gym.subscriptions.subscription_service import SubscriptionManager
 from gym.manager.user_manager import UserManager
 from gym.workouts.workout_plan_service import WorkoutPlanManager
