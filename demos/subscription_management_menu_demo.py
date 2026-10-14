@@ -13,7 +13,7 @@ from gym.users.user_repository import UserStorage
 from gym.payments.wallet_repository import WalletRepository
 from gym.payments.bank import API
 from gym.payments.payment_service import PaymentManager
-from main import create_subscription_manager
+from gym.application import create_subscription_manager
 from gym.subscriptions.subscription_menu import manage_subscriptions_menu
 
 DATA_DIR = os.path.join(PROJECT_ROOT, "demos", "data")
