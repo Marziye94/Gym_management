@@ -1,8 +1,8 @@
 import os
-from gym.models.transaction import Transaction
+from gym.payments.transaction import Transaction
 
 
-DEFAULT_DATA_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "transactions.txt")
+DEFAULT_DATA_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data", "transactions.txt"))
 
 
 class TransactionRepository:

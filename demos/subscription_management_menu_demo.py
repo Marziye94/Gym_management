@@ -8,11 +8,11 @@ sys.path.insert(0, PROJECT_ROOT)
 
 from gym.auth_service import AuthService
 from gym.subscriptions.subscription_repository import SubscriptionRepository
-from gym.data.transaction_repository import TransactionRepository
+from gym.payments.transaction_repository import TransactionRepository
 from gym.data.user_storage import UserStorage
-from gym.data.wallet_repository import WalletRepository
-from gym.financial.bank import API
-from gym.manager.payment_manager import PaymentManager
+from gym.payments.wallet_repository import WalletRepository
+from gym.payments.bank import API
+from gym.payments.payment_service import PaymentManager
 from main import create_subscription_manager
 from gym.subscriptions.subscription_menu import manage_subscriptions_menu
 

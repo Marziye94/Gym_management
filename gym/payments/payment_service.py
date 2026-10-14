@@ -1,7 +1,7 @@
-from gym.data.wallet_repository import WalletRepository
-from gym.data.transaction_repository import TransactionRepository
-from gym.models.wallet import Wallet
-from gym.models.transaction import Transaction
+from gym.payments.wallet_repository import WalletRepository
+from gym.payments.transaction_repository import TransactionRepository
+from gym.payments.wallet import Wallet
+from gym.payments.transaction import Transaction
 
 class PaymentManager:
     def __init__(self, wallet_repository, transaction_repository, bank_api):

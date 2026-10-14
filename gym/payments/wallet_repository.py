@@ -1,9 +1,9 @@
 import json
 import os
-from gym.models.wallet import Wallet
+from gym.payments.wallet import Wallet
 
 
-DEFAULT_DATA_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "wallets.json")
+DEFAULT_DATA_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data", "wallets.json"))
 
 
 class WalletRepository:
