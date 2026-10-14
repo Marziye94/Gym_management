@@ -2,8 +2,8 @@ import json
 import os
 
 from gym.data.errors import InvalidUserDataError, StorageError
-from gym.models.user import ALLOWED_ROLES, User
-from gym.validators import (
+from gym.users.user import ALLOWED_ROLES, User
+from gym.users.user_validators import (
     validate_email,
     validate_name,
     validate_password,
@@ -24,7 +24,7 @@ REQUIRED_USER_FIELDS = (
 class UserStorage:
     def __init__(self, data_file=None):
         if data_file is None:
-            data_file = os.path.join(os.path.dirname(__file__), "users.json")
+            data_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data", "users.json"))
         self.data_file = os.fspath(data_file)
 
     def load_users(self):

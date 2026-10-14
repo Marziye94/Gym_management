@@ -8,11 +8,11 @@ from gym.workouts.workout_plan_service import WorkoutPlanManager
 from gym.classes.class_repository import ClassRepository
 from gym.data.errors import StorageError
 from gym.halls.hall_repository import HallRepository
-from gym.data.user_storage import UserStorage
+from gym.users.user_repository import UserStorage
 from gym.workouts.workout_plan_repository import WorkoutPlanRepository
 from gym.halls.hall_service import HallManager
 from gym.classes.gym_class import GymClass
-from gym.models.user import User
+from gym.users.user import User
 from gym.workouts.coach_workout_menu import show_plan
 from gym.classes.coach_class_menu import view_my_classes_menu
 

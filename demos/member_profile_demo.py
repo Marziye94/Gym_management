@@ -7,7 +7,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from main import create_application
 from gym.workouts.workout_plan import Exercise, WorkoutPlan
-from menus.member_menus.profile import display_member_profile
+from gym.users.member_profile_menu import display_member_profile
 from gym.workouts.member_workout_menu import display_workout_plan
 
 

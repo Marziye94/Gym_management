@@ -6,12 +6,12 @@ from datetime import date, timedelta
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, PROJECT_ROOT)
 
-from gym.models.user import User
+from gym.users.user import User
 from gym.classes.gym_class import GymClass
 from gym.subscriptions.subscription import SubscriptionPlan, Subscription
 from gym.enrollments.class_enrollment import ClassEnrollment
 
-from gym.data.user_storage import UserStorage
+from gym.users.user_repository import UserStorage
 from gym.classes.class_repository import ClassRepository
 from gym.subscriptions.subscription_repository import SubscriptionRepository
 from gym.enrollments.enrollment_repository import EnrollmentRepository

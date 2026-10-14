@@ -1,5 +1,5 @@
 from gym.data.errors import StorageError
-from menus.member_menus.profile import display_member_profile
+from gym.users.member_profile_menu import display_member_profile
 from gym.workouts.member_workout_menu import display_workout_plan
 from gym.payments.wallet_menu import wallet_menu
 from gym.enrollments.enrollment_menu import manage_classes_menu

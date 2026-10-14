@@ -3,11 +3,11 @@ import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from gym.data.user_storage import UserStorage
+from gym.users.user_repository import UserStorage
 from gym.classes.class_repository import ClassRepository
 from gym.payments.transaction_repository import TransactionRepository
 from gym.reports.report_service import ReportManager
-from gym.models.user import User
+from gym.users.user import User
 from gym.classes.gym_class import GymClass
 from gym.payments.transaction import Transaction
 

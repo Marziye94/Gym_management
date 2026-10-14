@@ -1,5 +1,5 @@
 from gym.data.errors import StorageError
-from menus.manager_menus.manage_users import manage_users_menu
+from gym.users.user_menu import manage_users_menu
 from gym.halls.hall_menu import manage_halls_menu
 from gym.classes.class_menu import manage_classes_menu
 from gym.subscriptions.subscription_menu import manage_subscriptions_menu

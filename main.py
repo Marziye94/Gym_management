@@ -1,13 +1,13 @@
 from pathlib import Path
 
-from gym.auth_service import AuthService
+from gym.users.auth_service import AuthService
 from gym.classes.class_repository import ClassRepository
 from gym.enrollments.enrollment_repository import EnrollmentRepository
 from gym.data.errors import StorageError
 from gym.halls.hall_repository import HallRepository
 from gym.subscriptions.subscription_repository import SubscriptionRepository
 from gym.payments.transaction_repository import TransactionRepository
-from gym.data.user_storage import UserStorage
+from gym.users.user_repository import UserStorage
 from gym.payments.wallet_repository import WalletRepository
 from gym.workouts.workout_plan_repository import WorkoutPlanRepository
 from gym.payments.bank import API
@@ -17,7 +17,7 @@ from gym.halls.hall_service import HallManager
 from gym.payments.payment_service import PaymentManager
 from gym.reports.report_service import ReportManager
 from gym.subscriptions.subscription_service import SubscriptionManager
-from gym.manager.user_manager import UserManager
+from gym.users.user_service import UserManager
 from gym.workouts.workout_plan_service import WorkoutPlanManager
 from menus.main_menu import main_menu
 

@@ -1,8 +1,8 @@
-from gym.auth_service import AuthService, auth_result
+from gym.users.auth_service import AuthService, auth_result
 from gym.data.errors import StorageError
-from gym.data.user_storage import UserStorage
-from gym.models.user import User
-from gym.validators import (
+from gym.users.user_repository import UserStorage
+from gym.users.user import User
+from gym.users.user_validators import (
     validate_email,
     validate_name,
     validate_password,

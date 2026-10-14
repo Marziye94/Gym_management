@@ -6,9 +6,9 @@ import sys
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from gym.auth_service import AuthService
+from gym.users.auth_service import AuthService
 from gym.data.errors import StorageError
-from gym.data.user_storage import UserStorage
+from gym.users.user_repository import UserStorage
 
 
 DEMO_FILE = Path(__file__).resolve().parent / "data" / "users_auth_fix_demo.json"
