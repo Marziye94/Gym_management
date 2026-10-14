@@ -1,4 +1,3 @@
-"""Show Member profiles and workout plans using real demo repositories."""
 from datetime import date, timedelta
 from pathlib import Path
 import sys

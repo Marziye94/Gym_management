@@ -1,4 +1,3 @@
-"""Open the real application using only demos/data/application files."""
 from datetime import date
 from pathlib import Path
 import sys
@@ -14,7 +13,6 @@ DATA_DIRECTORY = PROJECT_ROOT / "demos" / "data" / "application"
 
 
 def prepare_demo(application):
-    # Do not seed or overwrite data if a repository could not be loaded.
     if any(value is None for value in application.values()):
         print("Demo data is unavailable. Fix its files before running the scenario.")
         return False
