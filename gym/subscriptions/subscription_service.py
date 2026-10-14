@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 
 from gym.data.errors import StorageError
-from gym.models.subscription import SubscriptionPlan, Subscription
+from gym.subscriptions.subscription import SubscriptionPlan, Subscription
 
 
 class OperationResult:

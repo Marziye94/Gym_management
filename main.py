@@ -5,7 +5,7 @@ from gym.data.class_repository import ClassRepository
 from gym.data.enrollment_repository import EnrollmentRepository
 from gym.data.errors import StorageError
 from gym.data.hall_repository import HallRepository
-from gym.data.subscription_repository import SubscriptionRepository
+from gym.subscriptions.subscription_repository import SubscriptionRepository
 from gym.data.transaction_repository import TransactionRepository
 from gym.data.user_storage import UserStorage
 from gym.data.wallet_repository import WalletRepository
@@ -16,7 +16,7 @@ from gym.manager.class_enrollment_manager import ClassEnrollmentManager
 from gym.manager.hall_manager import HallManager
 from gym.manager.payment_manager import PaymentManager
 from gym.manager.report_manager import ReportManager
-from gym.manager.subscription_manager import SubscriptionManager
+from gym.subscriptions.subscription_service import SubscriptionManager
 from gym.manager.user_manager import UserManager
 from gym.manager.workout_plan_manager import WorkoutPlanManager
 from menus.main_menu import main_menu

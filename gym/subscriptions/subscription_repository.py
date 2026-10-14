@@ -2,10 +2,10 @@ import json
 import os
 from datetime import date
 
-from gym.models.subscription import SubscriptionPlan, Subscription
+from gym.subscriptions.subscription import SubscriptionPlan, Subscription
 
 
-DEFAULT_DATA_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'subscriptions.json')
+DEFAULT_DATA_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data', 'subscriptions.json'))
 
 
 class SubscriptionRepository:

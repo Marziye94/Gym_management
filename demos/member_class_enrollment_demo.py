@@ -8,15 +8,15 @@ sys.path.insert(0, PROJECT_ROOT)
 
 from gym.models.user import User
 from gym.models.gym_class import GymClass
-from gym.models.subscription import SubscriptionPlan, Subscription
+from gym.subscriptions.subscription import SubscriptionPlan, Subscription
 from gym.models.class_enrollment import ClassEnrollment
 
 from gym.data.user_storage import UserStorage
 from gym.data.class_repository import ClassRepository
-from gym.data.subscription_repository import SubscriptionRepository
+from gym.subscriptions.subscription_repository import SubscriptionRepository
 from gym.data.enrollment_repository import EnrollmentRepository
 
-from gym.manager.subscription_manager import SubscriptionManager
+from gym.subscriptions.subscription_service import SubscriptionManager
 from gym.manager.class_enrollment_manager import ClassEnrollmentManager
 
 

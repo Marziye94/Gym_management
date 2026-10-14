@@ -31,7 +31,6 @@ class Subscription:
         self.end_date = end_date
 
     def get_status(self, current_date):
-        # طبق قانون، روز پایان شامل اشتراک نمی‌شود (Exclusive)
         if self.start_date <= current_date < self.end_date:
             return "Active"
         return "Expired"
