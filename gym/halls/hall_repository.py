@@ -1,9 +1,9 @@
 import json
 import os
 
-from gym.models.gym_hall import GymHall
+from gym.halls.hall import GymHall
 
-DEFAULT_DATA_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "halls.json")
+DEFAULT_DATA_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data", "halls.json"))
 
 
 class HallRepository:

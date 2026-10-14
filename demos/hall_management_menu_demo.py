@@ -4,9 +4,9 @@ import sys
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, PROJECT_ROOT)
 
-from gym.data.hall_repository import HallRepository
-from gym.manager.hall_manager import HallManager
-from menus.manager_menus.manage_halls import manage_halls_menu, show_hall
+from gym.halls.hall_repository import HallRepository
+from gym.halls.hall_service import HallManager
+from gym.halls.hall_menu import manage_halls_menu, show_hall
 
 DEMO_DATA_FILE = os.path.join(PROJECT_ROOT, "demos", "data", "halls_demo.json")
 

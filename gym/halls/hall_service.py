@@ -1,4 +1,4 @@
-from gym.models.gym_hall import GymHall
+from gym.halls.hall import GymHall
 
 
 class OperationResult:
