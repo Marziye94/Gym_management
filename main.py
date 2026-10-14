@@ -2,7 +2,7 @@ from pathlib import Path
 
 from gym.auth_service import AuthService
 from gym.classes.class_repository import ClassRepository
-from gym.data.enrollment_repository import EnrollmentRepository
+from gym.enrollments.enrollment_repository import EnrollmentRepository
 from gym.data.errors import StorageError
 from gym.halls.hall_repository import HallRepository
 from gym.subscriptions.subscription_repository import SubscriptionRepository
@@ -12,7 +12,7 @@ from gym.data.wallet_repository import WalletRepository
 from gym.data.workout_plan_repository import WorkoutPlanRepository
 from gym.financial.bank import API
 from gym.classes.class_service import ClassManager
-from gym.manager.class_enrollment_manager import ClassEnrollmentManager
+from gym.enrollments.enrollment_service import ClassEnrollmentManager
 from gym.halls.hall_service import HallManager
 from gym.manager.payment_manager import PaymentManager
 from gym.manager.report_manager import ReportManager

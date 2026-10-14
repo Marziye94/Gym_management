@@ -2,7 +2,7 @@ from gym.data.errors import StorageError
 from menus.member_menus.profile import display_member_profile
 from menus.member_menus.view_workout_plan import display_workout_plan
 from menus.member_menus.wallet_menu import wallet_menu
-from menus.member_menus.manage_classes import manage_classes_menu
+from gym.enrollments.enrollment_menu import manage_classes_menu
 
 
 def member_menu(user, application):

@@ -1,5 +1,5 @@
 from datetime import date
-from gym.models.class_enrollment import ClassEnrollment
+from gym.enrollments.class_enrollment import ClassEnrollment
 
 
 class ClassEnrollmentManager:
