@@ -4,7 +4,7 @@ import sys
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, PROJECT_ROOT)
 
-from gym.coach.workout_plan_manager import WorkoutPlanManager
+from gym.manager.workout_plan_manager import WorkoutPlanManager
 from gym.data.class_repository import ClassRepository
 from gym.data.errors import StorageError
 from gym.data.hall_repository import HallRepository
