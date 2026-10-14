@@ -1,7 +1,7 @@
 import json
 import os
 
-from gym.data.errors import InvalidUserDataError, StorageError
+from gym.errors import InvalidUserDataError, StorageError
 from gym.users.user import ALLOWED_ROLES, User
 from gym.users.user_validators import (
     validate_email,

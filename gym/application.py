@@ -3,7 +3,7 @@ from pathlib import Path
 from gym.users.auth_service import AuthService
 from gym.classes.class_repository import ClassRepository
 from gym.enrollments.enrollment_repository import EnrollmentRepository
-from gym.data.errors import StorageError
+from gym.errors import StorageError
 from gym.halls.hall_repository import HallRepository
 from gym.subscriptions.subscription_repository import SubscriptionRepository
 from gym.payments.transaction_repository import TransactionRepository

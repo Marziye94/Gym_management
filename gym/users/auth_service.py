@@ -1,4 +1,4 @@
-from gym.data.errors import StorageError
+from gym.errors import StorageError
 from gym.users.user_repository import UserStorage
 from gym.users.user import ALLOWED_ROLES, User
 from gym.users.user_validators import validate_email, validate_name, validate_password, validate_username

@@ -1,4 +1,4 @@
-from gym.data.errors import StorageError
+from gym.errors import StorageError
 from gym.users.member_profile_menu import display_member_profile
 from gym.workouts.member_workout_menu import display_workout_plan
 from gym.payments.wallet_menu import wallet_menu

@@ -7,7 +7,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from gym.users.auth_service import AuthService
-from gym.data.errors import StorageError
+from gym.errors import StorageError
 from gym.users.user_repository import UserStorage
 
 

@@ -1,6 +1,6 @@
 from datetime import date
 
-from gym.data.errors import StorageError
+from gym.errors import StorageError
 
 
 def manage_subscriptions_menu(manager, get_payments_callback):

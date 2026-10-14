@@ -6,7 +6,7 @@ sys.path.insert(0, PROJECT_ROOT)
 
 from gym.workouts.workout_plan_service import WorkoutPlanManager
 from gym.classes.class_repository import ClassRepository
-from gym.data.errors import StorageError
+from gym.errors import StorageError
 from gym.halls.hall_repository import HallRepository
 from gym.users.user_repository import UserStorage
 from gym.workouts.workout_plan_repository import WorkoutPlanRepository

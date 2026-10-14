@@ -1,6 +1,6 @@
 from datetime import date, timedelta
 
-from gym.data.errors import StorageError
+from gym.errors import StorageError
 from gym.subscriptions.subscription import SubscriptionPlan, Subscription
 
 

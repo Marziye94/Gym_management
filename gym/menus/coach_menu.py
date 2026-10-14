@@ -1,4 +1,4 @@
-from gym.data.errors import StorageError
+from gym.errors import StorageError
 from gym.classes.coach_class_menu import view_my_classes_menu
 from gym.workouts.coach_workout_menu import manage_workouts_menu
 
