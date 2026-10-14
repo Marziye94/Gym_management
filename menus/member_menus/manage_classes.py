@@ -64,26 +64,26 @@ def manage_classes_menu(member_username, class_repository, enrollment_manager):
                 if enrollment.is_active:
                     active_enrollments.append(enrollment)
 
-                if not active_enrollments:
-                    print("You have no active registrations to cancel.")
-                    continue
+            if not active_enrollments:
+                print("You have no active registrations to cancel.")
+                continue
 
-                for enrollment in active_enrollments:
-                    print(f"ID: {enrollment.enrollment_id}")
-                    print(f"Class: {enrollment.class_name}")
+            for enrollment in active_enrollments:
+                print(f"ID: {enrollment.enrollment_id}")
+                print(f"Class: {enrollment.class_name}")
 
-                enrollment_id = input("Enter registration ID to cancel: ").strip()
+            enrollment_id = input("Enter registration ID to cancel: ").strip()
 
-                if not enrollment_id.isdigit():
-                    print("Invalid registration ID.")
-                    continue
+            if not enrollment_id.isdigit():
+                print("Invalid registration ID.")
+                continue
 
-                success, message = enrollment_manager.cancel_enrollment(
-                    member_username,
-                    int(enrollment_id)
-                    )
+            success, message = enrollment_manager.cancel_enrollment(
+                member_username,
+                int(enrollment_id)
+                )
 
-                print(message)
+            print(message)
 
         elif choice == "5":
             break

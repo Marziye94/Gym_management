@@ -1,20 +1,4 @@
-from gym.data.user_storage import UserStorage
-from gym.data.class_repository import ClassRepository
-from gym.data.transaction_repository import TransactionRepository
-from gym.manager.report_manager import ReportManager
-
-
-def create_default_report_manager():
-    user_storage = UserStorage()
-    class_repository = ClassRepository()
-    transaction_repository = TransactionRepository()
-    return ReportManager(user_storage, class_repository, transaction_repository)
-
-
-def show_reports(report_manager=None):
-    if report_manager is None:
-        report_manager = create_default_report_manager()
-
+def show_reports(report_manager):
     while True:
         print("\n--- Reports Menu ---")
         print("1. Active Members Count")
@@ -60,5 +44,5 @@ def show_reports(report_manager=None):
             print("Invalid choice. Please try again.")
 
 
-def show_reports_menu(report_manager=None):
+def show_reports_menu(report_manager):
     show_reports(report_manager)

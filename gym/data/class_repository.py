@@ -13,6 +13,7 @@ class ClassRepository:
         self.load()
 
     def load(self):
+        self.load_failed = False
         self.classes = {}
         if not os.path.exists(self.data_file):
             return
@@ -39,6 +40,7 @@ class ClassRepository:
                 )
                 self.classes[gym_class.name] = gym_class
         except Exception:
+            self.load_failed = True
             print("Error: Could not read stored class data.")
 
     def save(self):

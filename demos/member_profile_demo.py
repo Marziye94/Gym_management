@@ -1,71 +1,47 @@
-﻿import sys
-import os
+"""Show Member profiles and workout plans using real demo repositories."""
+from datetime import date, timedelta
+from pathlib import Path
+import sys
 
-root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, root_dir)
-sys.path.insert(0, os.path.join(root_dir, 'gym'))
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
+from main import create_application
+from gym.models.workout_plan import Exercise, WorkoutPlan
 from menus.member_menus.profile import display_member_profile
 from menus.member_menus.view_workout_plan import display_workout_plan
 
-class MockUser:
-    def __init__(self, name, username, email):
-        self.name = name
-        self.username = username
-        self.email = email
-        self.is_active = True
-
-class MockUserManager:
-    def __init__(self):
-        self.users = {
-            "reza123": MockUser("Reza Ahmadi", "reza123", "reza@test.com"),
-            "sara123": MockUser("Sara Kamali", "sara123", "sara@test.com"),
-            "ali123": MockUser("Ali Karimi", "ali123", "ali@test.com")
-        }
-    def get_user(self, username):
-        return self.users.get(username)
-
-class MockSubscriptionManager:
-    def get_member_status(self, username, current_date):
-        if username == "reza123":
-            return "Active", {"subscription_type": "One Month", "start_date": "2026-10-01", "end_date": "2026-11-01"}
-        elif username == "ali123":
-            return "Expired", {"subscription_type": "Three Months", "start_date": "2026-05-01", "end_date": "2026-08-01"}
-        return "No Subscription", None
-
-class MockExercise:
-    def __init__(self, name, sets, reps, rest, desc):
-        self.name = name
-        self.sets = sets
-        self.reps = reps
-        self.rest_time = rest
-        self.description = desc
-
-class MockWorkoutPlan:
-    def __init__(self, exercises):
-        self.exercises = exercises
-
-class MockWorkoutRepo:
-    def get_plan_by_username(self, username):
-        if username == "reza123":
-            return MockWorkoutPlan([
-                MockExercise("Bench Press", 3, 10, 60, "Keep back flat on the bench."),
-                MockExercise("Squat", 4, 8, 90, "Go parallel, keep chest up.")
-            ])
-        return None
 
 def run_demo():
-    user_manager = MockUserManager()
-    sub_manager = MockSubscriptionManager()
-    workout_repo = MockWorkoutRepo()
+    application = create_application(PROJECT_ROOT / "demos" / "data" / "member_profile")
+    users = application["user_storage"]
+    auth = application["auth"]
+    subscriptions = application["subscription_manager"]
+    workouts = application["workout_repository"]
+    for name, username in (("Reza", "reza123"), ("Sara", "sara123"), ("Ali", "ali123")):
+        if users.get_user(username) is None:
+            result = auth.register_user(name, username, "Member123@", "Member")
+            if not result["success"]:
+                print(result["message"])
+                return
+    for username, start_date in (("reza123", date.today()), ("ali123", date.today() - timedelta(days=60))):
+        if not subscriptions.get_member_subscriptions(username):
+            result = subscriptions.register_subscription(username, "One Month", 5000, 30, start_date)
+            if not result.success:
+                print(result.message)
+                return
+    if not workouts.get_by_member_username("reza123"):
+        plan = WorkoutPlan(workouts.generate_id(), "coach01", "Yoga", "reza123", [
+            Exercise("Bench Press", 3, 10, 60, "Keep back flat on the bench."),
+            Exercise("Squat", 4, 8, 90, "Keep chest up."),
+        ])
+        workouts.add(plan)
+    for username in ("reza123", "sara123", "ali123", "unknown_user"):
+        print("\nAuthenticated Member:", username)
+        display_member_profile(username, users, subscriptions)
+        if users.get_user(username) is not None:
+            display_workout_plan(username, workouts)
 
-    scenarios = ["reza123", "sara123", "ali123", "unknown_user"]
-
-    for username in scenarios:
-        print(f"\n\n>>> TESTING AUTHENTICATED MEMBER: '{username}' <<<")
-        display_member_profile(username, user_manager, sub_manager)
-        if user_manager.get_user(username):
-            display_workout_plan(username, workout_repo)
 
 if __name__ == "__main__":
     run_demo()

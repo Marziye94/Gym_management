@@ -9,9 +9,11 @@ class EnrollmentRepository:
     def __init__(self, file_path="gym/data/enrollments.json"):
         self.file_path = file_path
         self.enrollments = {}
-        self.load()
+        if self.load() is False:
+            print("Stored enrollment data could not be read.")
 
     def load(self):
+        self.load_failed = False
         self.enrollments = {}
 
         if not os.path.exists(self.file_path):
@@ -21,6 +23,9 @@ class EnrollmentRepository:
             with open(self.file_path, "r", encoding="utf-8") as file:
                 data = json.load(file)
 
+            if not isinstance(data, list):
+                self.load_failed = True
+                return False
             loaded_enrollments = {}
 
             for record in data:
@@ -37,12 +42,14 @@ class EnrollmentRepository:
                     loaded_enrollments[enrollment.enrollment_id] = enrollment
 
                 except (KeyError, TypeError, ValueError):
+                    self.load_failed = True
                     continue
 
             self.enrollments = loaded_enrollments
-            return True
+            return not self.load_failed
 
-        except (OSError, json.JSONDecodeError):
+        except (OSError, ValueError):
+            self.load_failed = True
             return False
 
     def save(self):
@@ -104,3 +111,10 @@ class EnrollmentRepository:
     def generate_tracking_number(self):
         number = self.get_next_enrollment_id()
         return f"ENR-{number}"
+
+    def get_active_member_usernames(self, class_name):
+        members = []
+        for enrollment in self.enrollments.values():
+            if enrollment.class_name == class_name and enrollment.is_active:
+                members.append(enrollment.member_username)
+        return members

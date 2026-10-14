@@ -69,6 +69,9 @@ class UserStorage:
                 return user
         return None
 
+    def get_user(self, username):
+        return self.find_by_username(self.load_users(), username)
+
     def get_next_user_id(self, users):
         biggest_id = 0
         for user in users:

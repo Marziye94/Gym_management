@@ -13,6 +13,7 @@ class HallRepository:
         self.load()
 
     def load(self):
+        self.load_failed = False
         self.halls = {}
         if not os.path.exists(self.data_file):
             return
@@ -20,9 +21,11 @@ class HallRepository:
             with open(self.data_file, "r", encoding="utf-8") as file:
                 records = json.load(file)
         except (OSError, ValueError):
+            self.load_failed = True
             print("Stored hall data could not be read. Starting with an empty hall list.")
             return
         if type(records) is not list:
+            self.load_failed = True
             print("Stored hall data is invalid. Starting with an empty hall list.")
             return
         for record in records:
@@ -30,6 +33,7 @@ class HallRepository:
                 hall = GymHall(record["name"], record["capacity"],
                                record["equipment"], record["is_active"])
             except (KeyError, TypeError, ValueError):
+                self.load_failed = True
                 print("An invalid hall record was skipped.")
                 continue
             self.halls[hall.name] = hall

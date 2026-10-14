@@ -11,7 +11,7 @@ from gym.data.transaction_repository import TransactionRepository
 from gym.data.subscription_repository import SubscriptionRepository
 from gym.manager.payment_manager import PaymentManager
 from gym.manager.subscription_manager import SubscriptionManager
-from gym.financial.Bank import API
+from gym.financial.bank import API
 
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
