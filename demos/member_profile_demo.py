@@ -1,6 +1,9 @@
 ﻿import sys
 import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, root_dir)
+sys.path.insert(0, os.path.join(root_dir, 'gym'))
 
 from menus.member_menus.profile import display_member_profile
 from menus.member_menus.view_workout_plan import display_workout_plan
