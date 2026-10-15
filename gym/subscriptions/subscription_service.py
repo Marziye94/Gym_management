@@ -20,7 +20,7 @@ class SubscriptionManager:
         try:
             plan = SubscriptionPlan(name, price, duration_days)
             self.repo.add_plan(plan)
-            return OperationResult(True, 'Plan created successfully.', plan)
+            return OperationResult(True, "Plan created successfully.", plan)
         except (ValueError, OSError) as error:
             return OperationResult(False, str(error))
 
@@ -97,35 +97,54 @@ class SubscriptionManager:
     def check_subscription(self, member_username, current_date):
         try:
             if not self.is_member_active_lookup(member_username):
-                return OperationResult(False, 'Member does not exist or is inactive.')
+                return OperationResult(False, "Member does not exist or is inactive.")
             for subscription in self.get_member_subscriptions(member_username):
-                if subscription.get_status(current_date) == 'Active':
-                    return OperationResult(True, 'Active subscription found.', subscription)
+                if subscription.get_status(current_date) == "Active":
+                    return OperationResult(True, "Active subscription found.", subscription)
         except (ValueError, TypeError, StorageError) as error:
             return OperationResult(False, str(error))
-        return OperationResult(False, 'No active subscription found for this date.')
+        return OperationResult(False, "No active subscription found for this date.")
+
 
     def get_member_status(self, member_username, current_date):
+        if not isinstance(current_date, date):
+            raise ValueError("A valid date is required.")
+        if not self.is_member_active_lookup(member_username):
+            return "No Subscription", None
+
         subscriptions = self.get_member_subscriptions(member_username)
+
         if not subscriptions:
-            return 'No Subscription', None
+            return "No Subscription", None
+
         active_subscriptions = []
+
         for subscription in subscriptions:
             if subscription.get_status(current_date) == "Active":
                 active_subscriptions.append(subscription)
-        candidates = active_subscriptions if active_subscriptions else subscriptions
-        latest = max(candidates, key=lambda subscription: subscription.end_date)
-        status = latest.get_status(current_date)
+
+        latest = subscriptions[0]
+
+        for subscription in active_subscriptions:
+            if subscription.end_date > latest.end_date:
+                latest = subscription
+
         plan = self.get_plan(latest.plan_id)
+
+        if plan is None:
+            return "No Subscription", None
+
+        status = latest.get_status(current_date)
         info = self._subscription_info(latest, plan)
-        info['status'] = status
+        info["status"] = status
+
         return status, info
 
     def _subscription_info(self, subscription, plan):
         return {
-            'member_username': subscription.member_username,
-            'subscription_type': plan.name,
-            'amount': plan.price,
-            'start_date': subscription.start_date,
-            'end_date': subscription.end_date,
+            "member_username": subscription.member_username,
+            "subscription_type": plan.name,
+            "amount": plan.price,
+            "start_date": subscription.start_date,
+            "end_date": subscription.end_date,
         }
