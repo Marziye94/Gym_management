@@ -66,19 +66,14 @@ def wallet_menu(member_username, payment_manager, subscription_manager):
                     print(f"Tracking number: {transaction.payment_id}")
         elif choice == "4":
             plans = subscription_manager.list_plans()
-            active_plans = []
 
-            for plan in plans:
-                if plan.is_active:
-                    active_plans.append(plan)
-
-            if not active_plans:
-                print("No active subscription plans available.")
+            if not plans:
+                print("No subscription plans available.")
                 continue
 
             print("--- Available Subscription Plans ---")
 
-            for plan in active_plans:
+            for plan in plans:
                 print(
                     f"{plan.plan_id}. {plan.name} - "
                     f"Price: {plan.price} - "

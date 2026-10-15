@@ -46,18 +46,14 @@ def manage_subscriptions_menu(manager, payment_manager, get_payments_callback):
 
             elif choice == "3":
                 username = input("Member username: ").strip()
-                active_plans = []
+                plans = manager.list_plans()
 
-                for plan in manager.list_plans():
-                    if plan.is_active:
-                        active_plans.append(plan)
-
-                if not active_plans:
-                    print("No active subscription plans available.")
+                if not plans:
+                    print("No subscription plans available.")
                     continue
 
                 print("-- Available Subscription Plans ---")
-                for plan in active_plans:
+                for plan in plans:
                     print(
                         f"ID: {plan.plan_id} | "
                         f"Name: {plan.name} | "
@@ -79,27 +75,17 @@ def manage_subscriptions_menu(manager, payment_manager, get_payments_callback):
                 found = False
 
                 for payment in payments:
-                    is_wallet_subscription = (
-                        payment.transaction_type == "wallet_payment"
-                        and payment.description.startswith("Subscription: ")
-                    )
-                    is_manager_subscription = (
-                        payment.transaction_type == "subscription_payment"
-                    )
-
-                    if not (
-                        is_wallet_subscription
-                        or is_manager_subscription
-                    ):
-                        continue
-
+                    description = str(payment.description).strip()
                     found = True
+
+                    plan_name = description
+                    if plan_name.startswith("Subscription: "):
+                        plan_name = plan_name.removeprefix(
+                            "Subscription: ")
 
                     print(
                         "Member:", payment.member_username,
-                        "| Plan:", payment.description.removeprefix(
-                            "Subscription: "
-                        ),
+                        "| Plan:", plan_name,
                         "| Amount:", payment.amount,
                         "| Date:", payment.date,
                         "| Tracking ID:", payment.payment_id,
@@ -110,11 +96,7 @@ def manage_subscriptions_menu(manager, payment_manager, get_payments_callback):
 
             elif choice == "5":
                 username = input("Member username: ").strip()
-
-                status, info = manager.get_member_status(
-                    username,
-                    date.today(),
-                )
+                status, info = manager.get_member_status(username, date.today())
 
                 print("Status:", status)
 
@@ -130,7 +112,7 @@ def manage_subscriptions_menu(manager, payment_manager, get_payments_callback):
                 return
 
             else:
-                print("Invalid choice. Try again.")
+                print("Invalid choice. Please try again.")
 
         except (OSError, ValueError, TypeError, StorageError) as error:
             print("Subscription operation failed:", error)
