@@ -27,7 +27,8 @@ class ClassEnrollmentManager:
             if enrollment.class_name == class_name and enrollment.is_active:
                 active_count += 1
 
-        return gym_class.capacity - active_count
+        #Ensure the remaining capacity never becomes negative.
+        return max(0, gym_class.capacity - active_count)
 
     def register_member(self, member_username, class_name):
         users = self.user_storage.load_users()
