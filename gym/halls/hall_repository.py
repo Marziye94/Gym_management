@@ -53,15 +53,19 @@ class HallRepository:
                 os.makedirs(folder, exist_ok=True)
             with open(self.data_file, "w", encoding="utf-8") as file:
                 json.dump(records, file, indent=4)
+            return True
         except OSError:
             print("Hall data could not be saved.")
+            return False
 
     def add(self, hall):
         if hall.name in self.halls:
-            return f"Hall '{hall.name}' already exists."
+            return False
         self.halls[hall.name] = hall
-        self.save()
-        return f"Hall '{hall.name}' was added."
+        if not self.save():
+            del self.halls[hall.name]
+            return False
+        return True
 
     def get_by_name(self, hall_name):
         if hall_name in self.halls:
@@ -75,8 +79,11 @@ class HallRepository:
         if old_name is None:
             old_name = hall.name
         if old_name not in self.halls:
-            return f"Hall '{old_name}' was not found."
+            return False
+        previous_halls = self.halls.copy()
         del self.halls[old_name]
         self.halls[hall.name] = hall
-        self.save()
-        return f"Hall '{hall.name}' was updated."
+        if not self.save():
+            self.halls = previous_halls
+            return False
+        return True
