@@ -3,7 +3,7 @@ import os
 import sys
 from datetime import date
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, PROJECT_ROOT)
 
 from gym.auth_service import AuthService
@@ -11,9 +11,9 @@ from gym.data.subscription_repository import SubscriptionRepository
 from gym.data.transaction_repository import TransactionRepository
 from gym.data.user_storage import UserStorage
 from gym.data.wallet_repository import WalletRepository
-from gym.financial.Bank import API
+from gym.financial.bank import API
 from gym.manager.payment_manager import PaymentManager
-from menus.member_menu import _create_subscription_manager
+from main import create_subscription_manager
 from menus.manager_menus.manage_subscriptions import manage_subscriptions_menu
 
 DATA_DIR = os.path.join(PROJECT_ROOT, "demos", "data")
@@ -37,7 +37,7 @@ def run_demo():
             print(result["message"])
             return
     repository = SubscriptionRepository(subscriptions_path)
-    manager = _create_subscription_manager(users, repository)
+    manager = create_subscription_manager(users, repository)
     transactions = TransactionRepository(transactions_path)
     payments = PaymentManager(WalletRepository(wallets_path), transactions, API())
     plan_result = manager.create_plan("One Month", 5000, 30)
@@ -55,7 +55,7 @@ def run_demo():
         return
     print("Demo members: reza123 and sara123. Reza already has a paid subscription.")
     manage_subscriptions_menu(manager, transactions.load_all)
-    reloaded = _create_subscription_manager(users, SubscriptionRepository(subscriptions_path))
+    reloaded = create_subscription_manager(users, SubscriptionRepository(subscriptions_path))
     status, info = reloaded.get_member_status("reza123", date.today())
     print("Reloaded Reza subscription:", status, info)
 

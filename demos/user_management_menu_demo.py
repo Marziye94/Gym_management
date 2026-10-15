@@ -6,33 +6,26 @@ import sys
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from gym.auth_service import AuthService
-from gym.data.class_repository import ClassRepository
 from gym.data.errors import StorageError
-from gym.data.hall_repository import HallRepository
-from gym.data.subscription_repository import SubscriptionRepository
-from gym.data.transaction_repository import TransactionRepository
-from gym.data.wallet_repository import WalletRepository
-from gym.data.user_storage import UserStorage
-from gym.financial.Bank import API
-from gym.manager.payment_manager import PaymentManager
+from main import create_application
 from menus.main_menu import main_menu
-from menus.member_menu import _create_subscription_manager
 from menus.manager_menus.manage_users import display_user
 
 
-DEMO_FILE = Path(__file__).resolve().parent / "data" / "users_menu_demo.json"
+DATA_DIRECTORY = PROJECT_ROOT / "demos" / "data" / "user_management"
+
 
 
 def main():
-    storage = UserStorage(DEMO_FILE)
+    application = create_application(DATA_DIRECTORY)
+    storage = application["user_storage"]
     try:
         storage.save_users([])
     except StorageError as error:
         print("Demo could not start:", error)
         return
 
-    auth = AuthService(storage)
+    auth = application["auth"]
     result = auth.register_user(
         name="Main Manager",
         username="manager01",
@@ -44,21 +37,11 @@ def main():
         return
 
     print("Demo ready. Log in using the predefined Manager account.")
-    halls = HallRepository(DEMO_FILE.with_name("halls_user_menu_demo.json"))
-    classes = ClassRepository(DEMO_FILE.with_name("classes_user_menu_demo.json"))
-    payments = PaymentManager(
-        WalletRepository(DEMO_FILE.with_name("wallets_user_menu_demo.json")),
-        TransactionRepository(DEMO_FILE.with_name("transactions_user_menu_demo.txt")),
-        API(),
-    )
-    subscriptions = _create_subscription_manager(
-        storage, SubscriptionRepository(DEMO_FILE.with_name("subscriptions_user_menu_demo.json"))
-    )
-    main_menu(storage, halls, classes, payments, subscriptions)
+    main_menu(application)
 
-    reloaded_storage = UserStorage(DEMO_FILE)
-    reloaded_auth = AuthService(reloaded_storage)
-    result = reloaded_auth.login("manager01", "Manager123@")
+    reloaded = create_application(DATA_DIRECTORY)
+    reloaded_storage = reloaded["user_storage"]
+    result = reloaded["auth"].login("manager01", "Manager123@")
     if not result["success"]:
         print("Demo reload failed:", result["message"])
         return

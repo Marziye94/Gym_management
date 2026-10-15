@@ -14,6 +14,7 @@ class WorkoutPlanRepository:
         self.load()
 
     def load(self):
+        self.load_failed = False
         self.plans = {}
         self.next_id = 1
         if not os.path.exists(self.data_file):
@@ -22,9 +23,11 @@ class WorkoutPlanRepository:
             with open(self.data_file, "r", encoding="utf-8") as file:
                 data = json.load(file)
         except (OSError, ValueError):
+            self.load_failed = True
             print("Stored workout plan data could not be read. Starting with no plans.")
             return
         if type(data) is not dict or type(data.get("plans")) is not list:
+            self.load_failed = True
             print("Stored workout plan data is invalid. Starting with no plans.")
             return
 
@@ -37,6 +40,7 @@ class WorkoutPlanRepository:
                 self.next_id = max(self.next_id, record["plan_id"] + 1)
             plan = self.plan_from_dict(record)
             if plan is None:
+                self.load_failed = True
                 print("An invalid workout plan record was skipped.")
                 continue
             self.plans[plan.plan_id] = plan
@@ -117,3 +121,10 @@ class WorkoutPlanRepository:
                     and plan.member_username == member_username):
                 return plan
         return None
+
+    def get_by_member_username(self, member_username):
+        plans = []
+        for plan in self.plans.values():
+            if plan.member_username == member_username:
+                plans.append(plan)
+        return plans

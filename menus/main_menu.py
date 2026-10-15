@@ -1,51 +1,42 @@
 from getpass import getpass
 
-from gym.auth_service import AuthService
-from gym.data.hall_repository import HallRepository
-from gym.data.user_storage import UserStorage
-from gym.manager.hall_manager import HallManager
 from menus.manager_menu import manager_menu
 from menus.coach_menu import coach_menu
 from menus.member_menu import member_menu
 
 
-def main_menu(user_storage=None, hall_repository=None, class_repository=None,
-              payment_manager=None, subscription_manager=None):
-    storage = user_storage if user_storage is not None else UserStorage()
-    halls = hall_repository if hall_repository is not None else HallRepository()
-    auth = AuthService(storage)
-    hall_manager = HallManager(halls)
+def main_menu(application):
     try:
-        _start_menu(auth, storage, hall_manager, class_repository,
-                    payment_manager, subscription_manager)
+        _start_menu(application)
     except (EOFError, KeyboardInterrupt):
         print("\nProgram closed.")
 
 
-def _start_menu(auth, storage, hall_manager, class_repository=None,
-                payment_manager=None, subscription_manager=None):
+def _start_menu(application):
     while True:
         print("--- Gym Management System ---")
         print("1. Manager Login")
         print("2. Coach Login")
         print("3. Member Login")
         print("4. Exit")
-
         choice = input("Choose an option: ").strip()
 
         if choice == "1":
-            user = _login(auth, "Manager")
+            user = _login(application["auth"], "Manager")
             if user is not None:
-                manager_menu(user, storage, hall_manager, class_repository,
-                             subscription_manager, payment_manager)
+                application["user_manager"].manager_user = user
+                try:
+                    manager_menu(user, application)
+                finally:
+                    application["user_manager"].manager_user = None
         elif choice == "2":
-            user = _login(auth, "Coach")
+            user = _login(application["auth"], "Coach")
             if user is not None:
-                coach_menu(user, storage)
+                coach_menu(user, application)
         elif choice == "3":
-            user = _login(auth, "Member")
+            user = _login(application["auth"], "Member")
             if user is not None:
-                member_menu(user, storage, payment_manager, subscription_manager)
+                member_menu(user, application)
         elif choice == "4":
             return
         else:
@@ -53,12 +44,14 @@ def _start_menu(auth, storage, hall_manager, class_repository=None,
 
 
 def _login(auth, expected_role):
+    if auth is None:
+        print("Login is unavailable because user data could not be loaded.")
+        return None
     while True:
         print("--- " + expected_role + " Login ---")
         username = input("Username: ")
         password = getpass("Password: ")
         result = auth.login(username, password)
-
         if result["success"]:
             user = result["user"]
             if user.role == expected_role:
@@ -67,7 +60,6 @@ def _login(auth, expected_role):
             print("This account cannot enter the " + expected_role + " panel.")
         else:
             print(result["message"])
-
         while True:
             print("1. Retry")
             print("2. Back to Start menu")

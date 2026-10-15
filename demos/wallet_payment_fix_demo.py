@@ -10,7 +10,7 @@ sys.path.insert(0, PROJECT_ROOT)
 from gym.data.wallet_repository import WalletRepository
 from gym.data.transaction_repository import TransactionRepository
 from gym.manager.payment_manager import PaymentManager
-from gym.financial.Bank import API
+from gym.financial.bank import API
 
 
 USERNAME = "reza123"
