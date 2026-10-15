@@ -64,8 +64,9 @@ class UserStorage:
         if not isinstance(username, str):
             return None
 
+        username = username.strip().casefold()
         for user in users:
-            if user.username.casefold() == username.casefold():
+            if user.username.strip().casefold() == username:
                 return user
         return None
 
@@ -84,7 +85,7 @@ class UserStorage:
         return User(
             user_id=record["user_id"],
             name=record["name"],
-            username=record["username"],
+            username=record["username"].strip(),
             password=record["password"],
             role=record["role"],
             is_active=record["is_active"],
@@ -109,6 +110,7 @@ class UserStorage:
             raise InvalidUserDataError("A user object is incomplete.")
 
         self._validate_record(record)
+        record["username"] = record["username"].strip()
         return record
 
     def _validate_record(self, record):
@@ -152,7 +154,7 @@ class UserStorage:
             if user.user_id in seen_ids:
                 raise InvalidUserDataError("Stored users contain duplicate user IDs.")
 
-            username = user.username.casefold()
+            username = user.username.strip().casefold()
             if username in seen_usernames:
                 raise InvalidUserDataError("Stored users contain duplicate usernames.")
 

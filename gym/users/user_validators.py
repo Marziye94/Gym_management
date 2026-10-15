@@ -15,8 +15,12 @@ def validate_username(username):
     if not isinstance(username, str):
         return validation_result(False, "Username must be a string.")
 
-    if not username.strip():
+    username = username.strip()
+    if not username:
         return validation_result(False, "Username cannot be empty or whitespace-only.")
+
+    if re.fullmatch(r"[A-Za-z0-9_]+", username) is None:
+        return validation_result(False, "Username may contain only English letters, digits, and underscores.")
 
     return validation_result(True, "Username is valid.")
 
