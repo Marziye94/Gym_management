@@ -1,3 +1,5 @@
+import csv
+import io
 from datetime import datetime
 
 class Transaction:
@@ -13,8 +15,8 @@ class Transaction:
             self.date = date
 
     def to_text(self):
-        return (
-            f"{self.member_username}|{self.transaction_type}|"
-            f"{self.amount}|{self.date}|"
-            f"{self.description}|{self.payment_id}\n"
-        )
+        output = io.StringIO(newline="")
+        writer = csv.writer(output, delimiter="|", lineterminator="\n")
+        writer.writerow([self.member_username, self.transaction_type, self.amount,
+                         self.date, self.description, self.payment_id])
+        return output.getvalue()

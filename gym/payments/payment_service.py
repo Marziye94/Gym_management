@@ -60,7 +60,7 @@ class PaymentManager:
             return False, message
         return True, "Wallet charged successfully."
 
-    def pay_from_wallet(self, member_username, amount, description="Wallet payment"):
+    def pay_from_wallet(self, member_username, amount, description="Wallet payment", payment_id=None):
         if not self._validate_member(member_username):
             return False, "Invalid member username."
 
@@ -74,7 +74,8 @@ class PaymentManager:
         if amount > wallet.get_balance():
             return False, "Insufficient balance."
 
-        payment_id = self.bank_api.generate_payment_id(amount, wallet.get_balance())
+        if payment_id is None:
+            payment_id = self.bank_api.generate_payment_id(amount, wallet.get_balance())
 
         transaction = Transaction(
             member_username=member_username,

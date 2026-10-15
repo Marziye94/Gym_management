@@ -1,3 +1,6 @@
+import math
+
+
 class ReportResult:
     def __init__(self, success, message, data=None):
         self.success = success
@@ -60,13 +63,16 @@ class ReportManager:
 
                 if pay_id == "" or pay_id == "none" or "fail" in pay_id:
                     continue
-                if "wallet_charge" in tx_type or "charge" in tx_type:
+                if tx_type not in ("wallet_payment", "subscription_payment", "wallet_refund"):
                     continue
 
                 try:
-                    amount_val = int(amount_raw)
-                    if amount_val > 0:
-                        total_revenue = total_revenue + amount_val
+                    amount_val = float(amount_raw)
+                    if math.isfinite(amount_val) and amount_val > 0:
+                        if tx_type == "wallet_refund":
+                            total_revenue -= amount_val
+                        else:
+                            total_revenue += amount_val
                 except (ValueError, TypeError):
                     continue
 

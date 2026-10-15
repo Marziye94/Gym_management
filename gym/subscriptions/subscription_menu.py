@@ -36,13 +36,18 @@ def manage_subscriptions_menu(manager, get_payments_callback):
             elif choice == "2":
                 found = False
                 for payment in get_payments_callback():
-                    if payment.transaction_type != "wallet_payment" or not payment.description.startswith("Subscription: "):
+                    if payment.transaction_type not in ("wallet_payment", "subscription_payment") or not payment.description.startswith("Subscription: "):
                         continue
                     found = True
                     print("Member:", payment.member_username,
                           "| Type:", payment.description.removeprefix("Subscription: "),
                           "| Amount:", payment.amount, "| Date:", payment.date,
                           "| Track ID:", payment.payment_id)
+                    subscription = manager.get_payment_subscription(payment.payment_id)
+                    if subscription is not None:
+                        print("Start:", subscription.start_date, "| End:", subscription.end_date)
+                    else:
+                        print("Start / End: Not recorded for this older payment.")
                 if not found:
                     print("No subscription payments found.")
             elif choice == "3":

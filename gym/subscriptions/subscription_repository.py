@@ -2,6 +2,8 @@ import json
 import os
 from datetime import date
 
+from gym.file_storage import write_files
+
 from gym.subscriptions.subscription import SubscriptionPlan, Subscription
 
 
@@ -46,6 +48,7 @@ class SubscriptionRepository:
                     start_date=date.fromisoformat(record['start_date']),
                     end_date=date.fromisoformat(record['end_date']),
                     subscription_id=record['subscription_id'],
+                    payment_id=record.get('payment_id'),
                 )
                 if (
                     type(subscription.subscription_id) is not int
@@ -62,7 +65,7 @@ class SubscriptionRepository:
         self._next_plan_id = max(plans, default=0) + 1
         self._next_subscription_id = max(subscriptions, default=0) + 1
 
-    def save(self):
+    def save(self, transaction_repository=None, transaction=None):
         plans = []
         for plan in self._plans.values():
             plans.append({
@@ -76,15 +79,17 @@ class SubscriptionRepository:
         for subscription in self._subscriptions.values():
             subscriptions.append({
                 'subscription_id': subscription.subscription_id,
+                'payment_id': subscription.payment_id,
                 'member_username': subscription.member_username,
                 'plan_id': subscription.plan_id,
                 'start_date': subscription.start_date.isoformat(),
                 'end_date': subscription.end_date.isoformat(),
             })
-        folder = os.path.dirname(os.path.abspath(self.file_path))
-        os.makedirs(folder, exist_ok=True)
-        with open(self.file_path, 'w', encoding='utf-8') as file:
-            json.dump({'plans': plans, 'subscriptions': subscriptions}, file, indent=2)
+        content = json.dumps({'plans': plans, 'subscriptions': subscriptions}, indent=2, allow_nan=False)
+        files = [(self.file_path, content)]
+        if transaction_repository is not None and transaction is not None:
+            files.append((transaction_repository.file_path, transaction_repository.content_with(transaction)))
+        write_files(files)
 
     def add_plan(self, plan):
         previous_plans = self._plans.copy()
@@ -95,12 +100,12 @@ class SubscriptionRepository:
         self._plans[plan.plan_id] = plan
         try:
             self.save()
-        except OSError:
+        except (OSError, TypeError, ValueError):
             self._plans = previous_plans
             self._next_plan_id = previous_id
             raise
 
-    def add_plan_and_subscription(self, plan, subscription):
+    def add_plan_and_subscription(self, plan, subscription, transaction_repository=None, transaction=None):
         previous_plan_id = self._next_plan_id
         previous_subscription_id = self._next_subscription_id
         plan.plan_id = previous_plan_id
@@ -111,8 +116,8 @@ class SubscriptionRepository:
         self._next_plan_id += 1
         self._next_subscription_id += 1
         try:
-            self.save()
-        except OSError:
+            self.save(transaction_repository, transaction)
+        except (OSError, TypeError, ValueError):
             del self._plans[plan.plan_id]
             del self._subscriptions[subscription.subscription_id]
             self._next_plan_id = previous_plan_id
@@ -130,7 +135,7 @@ class SubscriptionRepository:
         self._plans[plan.plan_id] = plan
         try:
             self.save()
-        except OSError:
+        except (OSError, TypeError, ValueError):
             self._plans[plan.plan_id] = previous_plan
             raise
 
@@ -143,7 +148,7 @@ class SubscriptionRepository:
         self._subscriptions[subscription.subscription_id] = subscription
         try:
             self.save()
-        except OSError:
+        except (OSError, TypeError, ValueError):
             self._subscriptions = previous_subscriptions
             self._next_subscription_id = previous_id
             raise
@@ -151,7 +156,7 @@ class SubscriptionRepository:
     def get_subscriptions_by_username(self, username):
         subscriptions = []
         for subscription in self._subscriptions.values():
-            if subscription.member_username == username:
+            if subscription.member_username.casefold() == username.strip().casefold():
                 subscriptions.append(subscription)
         return subscriptions
 
@@ -160,3 +165,9 @@ class SubscriptionRepository:
 
     def get_by_member_username(self, username):
         return self.get_subscriptions_by_username(username)
+
+    def get_by_payment_id(self, payment_id):
+        for subscription in self._subscriptions.values():
+            if subscription.payment_id == payment_id:
+                return subscription
+        return None
