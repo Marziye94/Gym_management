@@ -5,10 +5,10 @@ import sys
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from main import create_application
-from gym.models.workout_plan import Exercise, WorkoutPlan
-from menus.member_menus.profile import display_member_profile
-from menus.member_menus.view_workout_plan import display_workout_plan
+from gym.application import create_application
+from gym.workouts.workout_plan import Exercise, WorkoutPlan
+from gym.users.member_profile_menu import display_member_profile
+from gym.workouts.member_workout_menu import display_workout_plan
 
 
 def run_demo():

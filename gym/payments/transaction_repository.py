@@ -1,0 +1,60 @@
+import os
+from gym.payments.transaction import Transaction
+
+
+DEFAULT_DATA_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data", "transactions.txt"))
+
+
+class TransactionRepository:
+    def __init__(self, file_path=DEFAULT_DATA_FILE):
+        self.file_path = file_path
+
+    def save(self, transaction):
+        try:
+            os.makedirs(os.path.dirname(os.path.abspath(self.file_path)), exist_ok=True)
+            with open(self.file_path, "a", encoding="utf-8") as file:
+                file.write(transaction.to_text())
+            return True
+        except (OSError, AttributeError, TypeError):
+            return False
+
+    def load_all(self):
+        transactions = []
+
+        if not os.path.exists(self.file_path):
+            return transactions
+
+        try:
+            with open(self.file_path, "r", encoding="utf-8") as file:
+                for line in file:
+                    data = line.strip().split("|")
+                    if len(data) != 6:
+                        continue
+                    try:
+                        transaction = Transaction(
+                            member_username=data[0],
+                            transaction_type=data[1],
+                            amount=data[2],
+                            date=data[3],
+                            description=data[4],
+                            payment_id=data[5]
+                        )
+
+                        transactions.append(transaction)
+
+                    except (ValueError, TypeError):
+                        continue
+        except (OSError, UnicodeError):
+            raise OSError("Could not load transaction history.")
+
+        return transactions
+
+    def get_member_transactions(self, member_username):
+        member_transactions = []
+        transactions = self.load_all()
+
+        for transaction in transactions:
+            if transaction.member_username == member_username:
+                member_transactions.append(transaction)
+
+        return member_transactions

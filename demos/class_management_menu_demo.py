@@ -3,9 +3,9 @@ import sys
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, PROJECT_ROOT)
 
-from gym.data.class_repository import ClassRepository
-from gym.manager.class_manager import ClassManager
-from menus.manager_menus.manage_classes import manage_classes_menu
+from gym.classes.class_repository import ClassRepository
+from gym.classes.class_service import ClassManager
+from gym.classes.class_menu import manage_classes_menu
 
 def run_menu_demo():
     demo_file = os.path.join(PROJECT_ROOT, "demos", "data", "classes_demo.json")

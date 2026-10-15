@@ -5,9 +5,9 @@ import os
 # اضافه کردن مسیر ریشه پروژه برای شناسایی پکیج gym
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-from gym.models.subscription import SubscriptionPlan, Subscription
-from gym.data.subscription_repository import SubscriptionRepository
-from gym.manager.subscription_manager import SubscriptionManager
+from gym.subscriptions.subscription import SubscriptionPlan, Subscription
+from gym.subscriptions.subscription_repository import SubscriptionRepository
+from gym.subscriptions.subscription_service import SubscriptionManager
 
 def mock_member_lookup(username):
     # شبیه‌سازی وضعیت کاربران طبق داکیومنت تسک
