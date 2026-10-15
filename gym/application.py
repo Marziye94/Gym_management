@@ -86,7 +86,7 @@ def create_application(data_directory=DEFAULT_DATA_DIRECTORY):
 
     class_manager = None
     if classes is not None and users is not None and hall_manager is not None:
-        class_manager = ClassManager(classes, check_coach, check_hall)
+        class_manager = ClassManager(classes, check_coach, check_hall, enrollment_repository=enrollments)
     payment_manager = None
     if wallets is not None and transactions is not None:
         payment_manager = PaymentManager(wallets, transactions, API())
