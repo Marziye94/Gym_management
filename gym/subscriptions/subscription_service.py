@@ -109,6 +109,7 @@ class SubscriptionManager:
     def get_member_status(self, member_username, current_date):
         if not isinstance(current_date, date):
             raise ValueError("A valid date is required.")
+
         if not self.is_member_active_lookup(member_username):
             return "No Subscription", None
 
@@ -123,9 +124,12 @@ class SubscriptionManager:
             if subscription.get_status(current_date) == "Active":
                 active_subscriptions.append(subscription)
 
+        if active_subscriptions:
+            subscriptions = active_subscriptions
+
         latest = subscriptions[0]
 
-        for subscription in active_subscriptions:
+        for subscription in subscriptions:
             if subscription.end_date > latest.end_date:
                 latest = subscription
 
