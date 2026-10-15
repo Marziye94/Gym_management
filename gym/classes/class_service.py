@@ -100,7 +100,6 @@ class ClassManager:
                 gym_class.day,
                 gym_class.time,
                 gym_class.capacity,
-                gym_class.remaining_capacity,
                 gym_class.is_active,
             )
             updated_class.update_details(
