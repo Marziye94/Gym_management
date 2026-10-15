@@ -1,10 +1,9 @@
 import json
 import os
-
+import copy
 from gym.workouts.workout_plan import Exercise, WorkoutPlan
 
 DEFAULT_DATA_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data", "workout_plans.json"))
-
 
 class WorkoutPlanRepository:
     def __init__(self, data_file=DEFAULT_DATA_FILE):
@@ -24,107 +23,93 @@ class WorkoutPlanRepository:
                 data = json.load(file)
         except (OSError, ValueError):
             self.load_failed = True
-            print("Stored workout plan data could not be read. Starting with no plans.")
-            return
-        if type(data) is not dict or type(data.get("plans")) is not list:
-            self.load_failed = True
-            print("Stored workout plan data is invalid. Starting with no plans.")
             return
 
-        stored_next_id = data.get("next_id")
-        if type(stored_next_id) is int and stored_next_id > 0:
-            self.next_id = stored_next_id
-
-        for record in data["plans"]:
-            if type(record) is dict and type(record.get("plan_id")) is int:
-                self.next_id = max(self.next_id, record["plan_id"] + 1)
-            plan = self.plan_from_dict(record)
-            if plan is None:
-                self.load_failed = True
-                print("An invalid workout plan record was skipped.")
-                continue
-            self.plans[plan.plan_id] = plan
-
-    def plan_from_dict(self, record):
         try:
-            exercises = []
-            for item in record["exercises"]:
-                exercises.append(Exercise(item["name"], item["sets"], item["repetitions"],
-                                          item["rest_time"], item["description"]))
-            return WorkoutPlan(record["plan_id"], record["coach_username"], record["class_id"],
-                               record["member_username"], exercises)
-        except (KeyError, TypeError, ValueError):
-            return None
-
-    def plan_to_dict(self, plan):
-        exercises = []
-        for exercise in plan.exercises:
-            exercises.append({
-                "name": exercise.name,
-                "sets": exercise.sets,
-                "repetitions": exercise.repetitions,
-                "rest_time": exercise.rest_time,
-                "description": exercise.description,
-            })
-        return {
-            "plan_id": plan.plan_id,
-            "coach_username": plan.coach_username,
-            "class_id": plan.class_id,
-            "member_username": plan.member_username,
-            "exercises": exercises,
-        }
+            plans_dict = {}
+            max_id = 0
+            for record in data.get("plans", []):
+                exercises = [
+                    Exercise(
+                        name=ex.get("name"),
+                        sets=ex.get("sets"),
+                        reps=ex.get("reps"),
+                        rest_time=ex.get("rest_time"),
+                        description=ex.get("description")
+                    )
+                    for ex in record.get("exercises", [])
+                ]
+                plan = WorkoutPlan(
+                    member_username=record.get("member_username"),
+                    exercises=exercises,
+                    plan_id=record.get("id")
+                )
+                if plan.plan_id:
+                    if plan.plan_id > max_id:
+                        max_id = plan.plan_id
+                plans_dict[plan.member_username] = plan
+            self.plans = plans_dict
+            self.next_id = max_id + 1
+        except (TypeError, ValueError, KeyError):
+            self.load_failed = True
 
     def save(self):
-        data = {
-            "next_id": self.next_id,
-            "plans": [self.plan_to_dict(plan) for plan in self.plans.values()],
-        }
         try:
             folder = os.path.dirname(self.data_file)
-            if folder:
+            if folder and not os.path.exists(folder):
                 os.makedirs(folder, exist_ok=True)
+            
+            plans_list = []
+            for plan in self.plans.values():
+                exercises_list = [
+                    {
+                        "name": ex.name,
+                        "sets": ex.sets,
+                        "reps": ex.reps,
+                        "rest_time": ex.rest_time,
+                        "description": ex.description
+                    }
+                    for ex in plan.exercises
+                ]
+                plans_list.append({
+                    "id": plan.plan_id,
+                    "member_username": plan.member_username,
+                    "exercises": exercises_list
+                })
+            
             with open(self.data_file, "w", encoding="utf-8") as file:
-                json.dump(data, file, ensure_ascii=False, indent=2)
+                json.dump({"plans": plans_list}, file, indent=4)
             return True
-        except OSError:
-            print("Workout plan data could not be saved.")
+        except (OSError, TypeError):
             return False
 
-    def generate_id(self):
-        plan_id = self.next_id
-        self.next_id += 1
-        return plan_id
-
     def add(self, plan):
-        if plan.plan_id in self.plans:
-            return f"Workout plan {plan.plan_id} already exists."
-        self.plans[plan.plan_id] = plan
-        self.save()
-        return f"Workout plan {plan.plan_id} was added."
+        previous_plans = copy.deepcopy(self.plans)
+        previous_next_id = self.next_id
+
+        if plan.plan_id is None:
+            plan.plan_id = self.next_id
+            self.next_id += 1
+
+        self.plans[plan.member_username] = plan
+
+        if not self.save():
+            self.plans = previous_plans
+            self.next_id = previous_next_id
+            return False, "Error: Could not save workout plan to storage."
+        
+        return True, "Workout plan added successfully."
 
     def update(self, plan):
-        if plan.plan_id not in self.plans:
-            return f"Workout plan {plan.plan_id} was not found."
-        self.plans[plan.plan_id] = plan
-        self.save()
-        return f"Workout plan {plan.plan_id} was updated."
+        previous_plans = copy.deepcopy(self.plans)
 
-    def get_by_id(self, plan_id):
-        return self.plans.get(plan_id)
+        self.plans[plan.member_username] = plan
 
-    def get_all(self):
-        return list(self.plans.values())
+        if not self.save():
+            self.plans = previous_plans
+            return False, "Error: Could not update workout plan in storage."
+        
+        return True, "Workout plan updated successfully."
 
-    def find(self, coach_username, class_id, member_username):
-        for plan in self.plans.values():
-            if (plan.coach_username == coach_username and plan.class_id == class_id
-                    and plan.member_username == member_username):
-                return plan
-        return None
-
-    def get_by_member_username(self, member_username):
-        plans = []
-        for plan in self.plans.values():
-            if plan.member_username == member_username:
-                plans.append(plan)
-        return plans
+    def get_plan_by_username(self, username):
+        return self.plans.get(username)
