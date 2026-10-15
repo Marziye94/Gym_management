@@ -34,7 +34,6 @@ class SubscriptionRepository:
                     price=record['price'],
                     duration_days=record['duration_days'],
                     plan_id=record['plan_id'],
-                    is_active=record['is_active'],
                 )
                 if type(plan.plan_id) is not int or plan.plan_id < 1 or plan.plan_id in plans:
                     raise ValueError('Invalid plan ID.')
@@ -70,7 +69,6 @@ class SubscriptionRepository:
                 'name': plan.name,
                 'price': plan.price,
                 'duration_days': plan.duration_days,
-                'is_active': plan.is_active,
             })
         subscriptions = []
         for subscription in self._subscriptions.values():

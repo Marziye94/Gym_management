@@ -34,10 +34,18 @@ def manager_menu(user, application):
                     continue
                 manage_classes_menu(application["class_manager"],application["enrollment_manager"])
             elif choice == "4":
-                if application["subscription_manager"] is None or application["transaction_repository"] is None:
+                if (
+                    application["subscription_manager"] is None
+                    or application["payment_manager"] is None
+                    or application["transaction_repository"] is None
+                ):
                     print("Subscription and payment management is unavailable.")
                     continue
-                manage_subscriptions_menu(application["subscription_manager"],application["transaction_repository"].load_all)
+                manage_subscriptions_menu(
+                    application["subscription_manager"],
+                    application["payment_manager"],
+                    application["transaction_repository"].load_all,
+                )
             elif choice == "5":
                 if application["report_manager"] is None:
                     print("Reports are unavailable.")
