@@ -8,7 +8,6 @@ class GymClass:
         day,
         time,
         capacity,
-        remaining_capacity=None,
         is_active=True,
     ):
         self._validate_inputs(name, exercise, coach_name,
@@ -21,7 +20,6 @@ class GymClass:
         self.day = str(day).strip()
         self.time = str(time).strip()
         self.capacity = capacity
-        self.remaining_capacity = capacity if remaining_capacity is None else remaining_capacity
         self.is_active = bool(is_active)
 
     def _validate_inputs(self, name, exercise, coach_name, hall_name, day, time, capacity):
@@ -44,7 +42,6 @@ class GymClass:
         self._validate_inputs(name, exercise, coach_name,
                               hall_name, day, time, capacity)
 
-        registered_members = self.capacity - self.remaining_capacity
         self.name = str(name).strip()
         self.exercise = str(exercise).strip()
         self.coach_name = str(coach_name).strip()
@@ -52,7 +49,6 @@ class GymClass:
         self.day = str(day).strip()
         self.time = str(time).strip()
         self.capacity = capacity
-        self.remaining_capacity = max(0, capacity - registered_members)
 
     def assign_coach(self, coach_name):
         if not coach_name or not str(coach_name).strip():

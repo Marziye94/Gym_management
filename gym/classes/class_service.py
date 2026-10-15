@@ -9,10 +9,16 @@ class OperationResult:
 
 
 class ClassManager:
-    def __init__(self, repository, check_coach_active_fn, check_hall_active_fn):
+    def __init__(
+            self,
+            repository, 
+            check_coach_active_fn,
+            check_hall_active_fn,
+            enrollment_repository=None):
         self.repository = repository
         self.check_coach = check_coach_active_fn
         self.check_hall = check_hall_active_fn
+        self.enrollment_repository = enrollment_repository
 
     def create_class(self, name, exercise, coach_name, hall_name, day, time, capacity):
         try:
@@ -92,6 +98,18 @@ class ClassManager:
             if not self.check_hall(clean_hall):
                 return OperationResult(False, f"Hall '{clean_hall}' does not exist or is inactive.")
 
+            if new_capacity < gym_class.capacity:
+                if self.enrollment_repository is None:
+                    return OperationResult(False,"Cannot reduce capacity because enrollment data is unavailable.")
+                
+                active_count = 0
+                for enrollment in self.enrollment_repository.get_all():
+                    if enrollment.class_name == gym_class.name and enrollment.is_active:
+                        active_count += 1
+
+                if new_capacity < active_count:
+                    return OperationResult(False, f"Cannot reduce class capacity below {active_count}")
+                
             updated_class = GymClass(
                 gym_class.name,
                 gym_class.exercise,
@@ -100,7 +118,6 @@ class ClassManager:
                 gym_class.day,
                 gym_class.time,
                 gym_class.capacity,
-                gym_class.remaining_capacity,
                 gym_class.is_active,
             )
             updated_class.update_details(

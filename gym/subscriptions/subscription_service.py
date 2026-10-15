@@ -10,7 +10,6 @@ class OperationResult:
         self.message = message
         self.data = data
 
-
 class SubscriptionManager:
     def __init__(self, repository, is_member_active_lookup):
         self.repo = repository
@@ -31,39 +30,46 @@ class SubscriptionManager:
     def list_plans(self):
         return self.repo.get_all_plans()
 
-    def update_plan(self, plan_id, name, price, duration_days):
-        plan = self.get_plan(plan_id)
-        if plan is None:
-            return OperationResult(False, 'Plan not found.')
-        try:
-            updated_plan = SubscriptionPlan(name, price, duration_days, plan_id, plan.is_active)
-            self.repo.update_plan(updated_plan)
-            return OperationResult(True, 'Plan updated successfully.', updated_plan)
-        except (ValueError, OSError) as error:
-            return OperationResult(False, str(error))
 
-    def deactivate_plan(self, plan_id):
-        plan = self.get_plan(plan_id)
-        if plan is None:
-            return OperationResult(False, 'Plan not found.')
-        inactive_plan = SubscriptionPlan(plan.name, plan.price, plan.duration_days, plan_id, False)
+    def assign_subscription(self, member_username, plan_id, start_date, payment_manager):
         try:
-            self.repo.update_plan(inactive_plan)
-        except OSError as error:
-            return OperationResult(False, str(error))
-        return OperationResult(True, 'Plan deactivated successfully.', inactive_plan)
+            if not isinstance(start_date, date):
+                return OperationResult(False, "A valid start date is required.")
 
-    def register_subscription(self, member_username, name, price, duration_days, start_date):
-        try:
             if not self.is_member_active_lookup(member_username):
-                return OperationResult(False, 'Subscription failed: Member does not exist or is inactive.')
-            plan = SubscriptionPlan(name, price, duration_days)
-            subscription = Subscription(member_username, None, start_date,
-                                        start_date + timedelta(days=duration_days))
-            self.repo.add_plan_and_subscription(plan, subscription)
-            return OperationResult(True, 'Subscription created successfully.',
-                                   self._subscription_info(subscription, plan))
-        except (ValueError, TypeError, OSError, StorageError) as error:
+                return OperationResult(False, "Subscription failed: Member does not exist or is inactive.")
+
+            plan = self.get_plan(plan_id)
+
+            if plan is None or not plan.is_active:
+                return OperationResult(False, "Subscription failed: Plan not found or inactive.")
+
+            subscription = Subscription(member_username, plan.plan_id, start_date, start_date + timedelta(days=plan.duration_days))
+
+            self.repo.add_subscription(subscription)
+            success, message = (
+                payment_manager.record_received_subscription_payment(
+                    member_username,
+                    plan.price,
+                    "Subscription: " + plan.name,
+                )
+            )
+
+            if not success:
+                try:
+                    self.repo.remove_subscription(subscription.subscription_id)
+                except (OSError, ValueError, StorageError):
+                    return OperationResult(False, "Payment recording failed, and subscription rollback ")
+
+                return OperationResult(False, "Subscription was not completed: ")
+
+            return OperationResult(
+                True,
+                "Subscription registered and payment recorded successfully.",
+                self._subscription_info(subscription, plan),
+            )
+
+        except (ValueError, TypeError, OSError, StorageError, AttributeError) as error:
             return OperationResult(False, str(error))
 
     def create_subscription(self, member_username, plan_id, start_date):
