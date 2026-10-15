@@ -28,7 +28,8 @@ class HallManager:
             return OperationResult(False, str(error))
         if self.get_hall(hall.name) is not None:
             return OperationResult(False, f"Hall '{hall.name}' already exists.")
-        self.repository.add(hall)
+        if not self.repository.add(hall):
+            return OperationResult(False, "Hall could not be saved. Please try again.")
         return OperationResult(True, "Hall created successfully.", hall)
 
     def update_hall(self, current_name, new_name, capacity, equipment=None):
@@ -45,22 +46,32 @@ class HallManager:
         if equipment is None:
             equipment = hall.equipment
         old_name = hall.name
+        old_capacity = hall.capacity
+        old_equipment = list(hall.equipment)
         hall.update_details(new_name, capacity, equipment)
-        self.repository.update(hall, old_name)
+        if not self.repository.update(hall, old_name):
+            hall.update_details(old_name, old_capacity, old_equipment)
+            return OperationResult(False, "Hall changes could not be saved. Please try again.")
         return OperationResult(True, "Hall updated successfully.", hall)
 
     def deactivate_hall(self, name):
         hall = self.get_hall(name)
         if hall is None:
             return OperationResult(False, f"Hall '{name}' was not found.")
+        was_active = hall.is_active
         hall.deactivate()
-        self.repository.update(hall)
+        if not self.repository.update(hall):
+            hall.is_active = was_active
+            return OperationResult(False, "Hall status could not be saved. Please try again.")
         return OperationResult(True, "Hall deactivated successfully.", hall)
 
     def activate_hall(self, name):
         hall = self.get_hall(name)
         if hall is None:
             return OperationResult(False, f"Hall '{name}' was not found.")
+        was_active = hall.is_active
         hall.activate()
-        self.repository.update(hall)
+        if not self.repository.update(hall):
+            hall.is_active = was_active
+            return OperationResult(False, "Hall status could not be saved. Please try again.")
         return OperationResult(True, "Hall activated successfully.", hall)
