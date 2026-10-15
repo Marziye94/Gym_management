@@ -52,14 +52,11 @@ class ClassManager:
     def get_class(self, name):
         gym_class = self.repository.get_class(name)
         if gym_class:
-            gym_class.remaining_capacity = max(0, gym_class.capacity - self._registered_count(gym_class))
             return OperationResult(True, "Class found.", gym_class)
         return OperationResult(False, f"Class '{name}' was not found.")
 
     def list_classes(self):
         classes = self.repository.get_all()
-        for gym_class in classes:
-            gym_class.remaining_capacity = max(0, gym_class.capacity - self._registered_count(gym_class))
         return OperationResult(True, f"{len(classes)} classes found.", classes)
 
     def update_class(
@@ -104,6 +101,8 @@ class ClassManager:
             if not self.check_hall(clean_hall):
                 return OperationResult(False, f"Hall '{clean_hall}' does not exist or is inactive.")
 
+            if new_capacity < gym_class.capacity and self.enrollment_repository is None:
+                return OperationResult(False, "Cannot reduce capacity because enrollment data is unavailable.")
             registered_count = self._registered_count(gym_class)
             if new_capacity < registered_count:
                 return OperationResult(False, "Capacity cannot be less than the number of registered members.")
@@ -116,7 +115,6 @@ class ClassManager:
                 gym_class.day,
                 gym_class.time,
                 gym_class.capacity,
-                max(0, gym_class.capacity - registered_count),
                 gym_class.is_active,
             )
             updated_class.update_details(
@@ -200,9 +198,15 @@ class ClassManager:
             return OperationResult(False, "Could not save the class status.")
         return OperationResult(True, "Class activated successfully.", gym_class)
 
+    def get_remaining_capacity(self, class_name):
+        gym_class = self.repository.get_class(class_name)
+        if gym_class is None:
+            return None
+        return max(0, gym_class.capacity - self._registered_count(gym_class))
+
     def _registered_count(self, gym_class):
         if self.enrollment_repository is None:
-            return gym_class.capacity - gym_class.remaining_capacity
+            return 0
         count = 0
         for enrollment in self.enrollment_repository.get_all():
             if enrollment.class_name == gym_class.name and enrollment.is_active:

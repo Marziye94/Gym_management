@@ -37,8 +37,8 @@ def run_demo():
             print(result["message"])
             return
     repository = SubscriptionRepository(subscriptions_path)
-    manager = create_subscription_manager(users, repository)
     transactions = TransactionRepository(transactions_path)
+    manager = create_subscription_manager(users, repository, transactions)
     payments = PaymentManager(WalletRepository(wallets_path), transactions, API())
     plan_result = manager.create_plan("One Month", 5000, 30)
     if not plan_result.success:
@@ -54,7 +54,7 @@ def run_demo():
     if not result.success:
         return
     print("Demo members: reza123 and sara123. Reza already has a paid subscription.")
-    manage_subscriptions_menu(manager, transactions.load_all)
+    manage_subscriptions_menu(manager, payments, transactions.load_all)
     reloaded = create_subscription_manager(users, SubscriptionRepository(subscriptions_path))
     status, info = reloaded.get_member_status("reza123", date.today())
     print("Reloaded Reza subscription:", status, info)

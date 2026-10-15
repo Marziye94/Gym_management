@@ -36,7 +36,6 @@ class SubscriptionRepository:
                     price=record['price'],
                     duration_days=record['duration_days'],
                     plan_id=record['plan_id'],
-                    is_active=record['is_active'],
                 )
                 if type(plan.plan_id) is not int or plan.plan_id < 1 or plan.plan_id in plans:
                     raise ValueError('Invalid plan ID.')
@@ -73,7 +72,6 @@ class SubscriptionRepository:
                 'name': plan.name,
                 'price': plan.price,
                 'duration_days': plan.duration_days,
-                'is_active': plan.is_active,
             })
         subscriptions = []
         for subscription in self._subscriptions.values():
@@ -130,15 +128,6 @@ class SubscriptionRepository:
     def get_all_plans(self):
         return list(self._plans.values())
 
-    def update_plan(self, plan):
-        previous_plan = self._plans[plan.plan_id]
-        self._plans[plan.plan_id] = plan
-        try:
-            self.save()
-        except (OSError, TypeError, ValueError):
-            self._plans[plan.plan_id] = previous_plan
-            raise
-
     def add_subscription(self, subscription):
         previous_subscriptions = self._subscriptions.copy()
         previous_id = self._next_subscription_id
@@ -152,6 +141,22 @@ class SubscriptionRepository:
             self._subscriptions = previous_subscriptions
             self._next_subscription_id = previous_id
             raise
+
+    def remove_subscription(self, subscription_id):
+        subscription = self._subscriptions.get(subscription_id)
+
+        if subscription is None:
+            return False
+
+        del self._subscriptions[subscription_id]
+
+        try:
+            self.save()
+        except (OSError, TypeError, ValueError):
+            self._subscriptions[subscription_id] = subscription
+            raise
+
+        return True
 
     def get_subscriptions_by_username(self, username):
         subscriptions = []

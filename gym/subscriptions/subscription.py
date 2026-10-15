@@ -2,7 +2,7 @@ import math
 from datetime import date
 
 class SubscriptionPlan:
-    def __init__(self, name, price, duration_days, plan_id=None, is_active=True):
+    def __init__(self, name, price, duration_days, plan_id=None):
         if not isinstance(name, str) or not name.strip():
             raise ValueError("Plan name must be a non-empty string.")
         if type(price) not in (int, float) or not math.isfinite(price) or price <= 0:
@@ -14,7 +14,6 @@ class SubscriptionPlan:
         self.name = name.strip()
         self.price = float(price)
         self.duration_days = duration_days
-        self.is_active = is_active
 
 class Subscription:
     def __init__(self, member_username, plan_id, start_date, end_date, subscription_id=None, payment_id=None):

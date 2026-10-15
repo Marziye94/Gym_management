@@ -60,14 +60,21 @@ class PaymentManager:
             return False, message
         return True, "Wallet charged successfully."
 
+
     def pay_from_wallet(self, member_username, amount, description="Wallet payment", payment_id=None):
+        return self._pay_from_wallet(member_username, amount, description, transaction_type="wallet_payment", payment_id=payment_id)
+
+    def pay_subscription_from_wallet(self, member_username, amount, plan_name, payment_id=None):
+        return self._pay_from_wallet(member_username, amount, "Subscription: " + plan_name, transaction_type="subscription_payment", payment_id=payment_id)
+
+    def _pay_from_wallet(self, member_username, amount, description, transaction_type, payment_id=None):
         if not self._validate_member(member_username):
             return False, "Invalid member username."
 
         amount = self._validate_amount(amount)
 
         if amount is None:
-            return False, "Amount must be a positive integer."
+            return False, "Amount must be a positive number."
 
         wallet = self.get_wallet(member_username)
 
@@ -79,15 +86,19 @@ class PaymentManager:
 
         transaction = Transaction(
             member_username=member_username,
-            transaction_type="wallet_payment",
+            transaction_type=transaction_type,
             amount=amount,
             description=description,
-            payment_id=payment_id
+            payment_id=payment_id,
         )
+
         success, message = self._record_payment(wallet, transaction, False)
+
         if not success:
             return False, message
+
         return True, "Payment completed successfully."
+
 
     def get_member_transactions(self, member_username):
         if not self._validate_member(member_username):
@@ -103,18 +114,23 @@ class PaymentManager:
 
         return True, transactions
 
-    def refund_to_wallet(self, member_username, amount, description):
+
+    def refund_to_wallet(self, member_username, amount, description, transaction_type="wallet_refund"):
         amount = self._validate_amount(amount)
+
         if not self._validate_member(member_username) or amount is None:
             return False, "Invalid refund details."
+
         wallet = self.get_wallet(member_username)
+        payment_id = self.bank_api.generate_payment_id(amount, wallet.get_balance())
         transaction = Transaction(
             member_username=member_username,
-            transaction_type="wallet_refund",
+            transaction_type=transaction_type,
             amount=amount,
             description=description,
-            payment_id=self.bank_api.generate_payment_id(amount, member_username),
+            payment_id=payment_id,
         )
+
         return self._record_payment(wallet, transaction, True)
 
     def _record_payment(self, wallet, transaction, is_charge):

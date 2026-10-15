@@ -37,7 +37,6 @@ class ClassRepository:
                     day=item["day"],
                     time=item["time"],
                     capacity=item["total_capacity"],
-                    remaining_capacity=item["remaining_capacity"],
                     is_active=is_active
                 )
                 self.classes[gym_class.name] = gym_class
@@ -62,7 +61,6 @@ class ClassRepository:
                 "day": gym_class.day,
                 "time": gym_class.time,
                 "total_capacity": gym_class.capacity,
-                "remaining_capacity": gym_class.remaining_capacity,
                 "status": status
             }
             data_list.append(item)

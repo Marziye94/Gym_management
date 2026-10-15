@@ -17,6 +17,9 @@ class AuthService:
         self.user_storage = user_storage if user_storage is not None else UserStorage()
 
     def register_user(self, name, username, password, role, email=None, is_active=True):
+        if isinstance(username, str):
+            username = username.strip()
+
         name_result = validate_name(name)
         if not name_result["is_valid"]:
             return auth_result(False, name_result["message"])
@@ -66,7 +69,8 @@ class AuthService:
     def login(self, username, password):
         if not isinstance(username, str) or not isinstance(password, str):
             return auth_result(False, "Invalid username or password.")
-        if not username.strip() or not password.strip():
+        username = username.strip()
+        if not username or not password.strip():
             return auth_result(False, "Invalid username or password.")
 
         try:

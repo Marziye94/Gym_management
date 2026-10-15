@@ -95,7 +95,7 @@ def change_class_status_menu(class_manager):
         print("Invalid choice.")
 
 
-def view_classes_menu(class_manager):
+def view_classes_menu(class_manager, enrollment_manager=None):
     res = class_manager.list_classes()
     classes = res.data
 
@@ -104,6 +104,10 @@ def view_classes_menu(class_manager):
         return
 
     for gym_class in classes:
+        if enrollment_manager is None:
+            remaining = class_manager.get_remaining_capacity(gym_class.name)
+        else:
+            remaining = enrollment_manager.get_remaining_capacity(gym_class.name)
         if gym_class.is_active:
             status = "Active"
         else:
@@ -116,12 +120,12 @@ def view_classes_menu(class_manager):
         print(f"Day: {gym_class.day}")
         print(f"Time: {gym_class.time}")
         print(f"Total Capacity: {gym_class.capacity}")
-        print(f"Remaining Capacity: {gym_class.remaining_capacity}")
+        print(f"Remaining Capacity: {remaining}")
         print(f"Status: {status}")
         print("-" * 30)
 
 
-def manage_classes_menu(class_manager):
+def manage_classes_menu(class_manager, enrollment_manager=None):
     while True:
         print("--- Class Management ---")
         print("1. Create Class")
@@ -139,7 +143,7 @@ def manage_classes_menu(class_manager):
         elif choice == "3":
             change_class_status_menu(class_manager)
         elif choice == "4":
-            view_classes_menu(class_manager)
+            view_classes_menu(class_manager, enrollment_manager)
         elif choice == "5":
             return
         else:

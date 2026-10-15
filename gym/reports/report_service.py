@@ -63,19 +63,19 @@ class ReportManager:
 
                 if pay_id == "" or pay_id == "none" or "fail" in pay_id:
                     continue
-                if tx_type not in ("wallet_payment", "subscription_payment", "wallet_refund"):
+                if tx_type not in ("wallet_payment", "subscription_payment", "wallet_refund", "subscription_payment_refund"):
                     continue
 
                 try:
                     amount_val = float(amount_raw)
                     if math.isfinite(amount_val) and amount_val > 0:
-                        if tx_type == "wallet_refund":
+                        if tx_type in ("wallet_refund", "subscription_payment_refund"):
                             total_revenue -= amount_val
                         else:
                             total_revenue += amount_val
                 except (ValueError, TypeError):
                     continue
 
-            return ReportResult(True, "Total revenue calculated successfully.", total_revenue)
+            return ReportResult(True, "Total revenue calculated successfully.", max(0.0, total_revenue))
         except Exception as error:
             return ReportResult(False, "Could not calculate total revenue: " + str(error))
