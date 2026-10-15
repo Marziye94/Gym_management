@@ -44,7 +44,13 @@ class GymClass:
         self._validate_inputs(name, exercise, coach_name,
                               hall_name, day, time, capacity)
 
-        registered_members = self.capacity - self.remaining_capacity
+        used_capacity = self.capacity - self.remaining_capacity
+
+        if capacity < used_capacity:
+            raise ValueError(
+                f"Cannot reduce capacity to {capacity}. There are already {used_capacity} active registrations."
+            )
+
         self.name = str(name).strip()
         self.exercise = str(exercise).strip()
         self.coach_name = str(coach_name).strip()
@@ -52,7 +58,7 @@ class GymClass:
         self.day = str(day).strip()
         self.time = str(time).strip()
         self.capacity = capacity
-        self.remaining_capacity = max(0, capacity - registered_members)
+        self.remaining_capacity = capacity - used_capacity
 
     def assign_coach(self, coach_name):
         if not coach_name or not str(coach_name).strip():
