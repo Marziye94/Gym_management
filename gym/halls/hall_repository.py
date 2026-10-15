@@ -1,6 +1,8 @@
 import json
 import os
 
+from gym.file_storage import write_json_files
+
 from gym.halls.hall import GymHall
 
 DEFAULT_DATA_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data", "halls.json"))
@@ -38,30 +40,34 @@ class HallRepository:
                 continue
             self.halls[hall.name] = hall
 
-    def save(self):
+    def to_records(self, halls=None):
+        if halls is None:
+            halls = self.halls.values()
         records = []
-        for hall in self.halls.values():
+        for hall in halls:
             records.append({
                 "name": hall.name,
                 "capacity": hall.capacity,
                 "equipment": hall.equipment,
                 "is_active": hall.is_active,
             })
+        return records
+
+    def save(self):
         try:
-            folder = os.path.dirname(self.data_file)
-            if folder:
-                os.makedirs(folder, exist_ok=True)
-            with open(self.data_file, "w", encoding="utf-8") as file:
-                json.dump(records, file, indent=4)
-        except OSError:
-            print("Hall data could not be saved.")
+            write_json_files([(self.data_file, self.to_records())])
+            return True
+        except (OSError, TypeError, ValueError):
+            return False
 
     def add(self, hall):
         if hall.name in self.halls:
-            return f"Hall '{hall.name}' already exists."
+            return False
         self.halls[hall.name] = hall
-        self.save()
-        return f"Hall '{hall.name}' was added."
+        if not self.save():
+            del self.halls[hall.name]
+            return False
+        return True
 
     def get_by_name(self, hall_name):
         if hall_name in self.halls:
@@ -75,8 +81,13 @@ class HallRepository:
         if old_name is None:
             old_name = hall.name
         if old_name not in self.halls:
-            return f"Hall '{old_name}' was not found."
+            return False
+        if old_name != hall.name and hall.name in self.halls:
+            return False
+        previous_halls = self.halls.copy()
         del self.halls[old_name]
         self.halls[hall.name] = hall
-        self.save()
-        return f"Hall '{hall.name}' was updated."
+        if not self.save():
+            self.halls = previous_halls
+            return False
+        return True

@@ -1,6 +1,8 @@
 import json
 import os
 
+from gym.file_storage import write_json_files
+
 from gym.workouts.workout_plan import Exercise, WorkoutPlan
 
 DEFAULT_DATA_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data", "workout_plans.json"))
@@ -74,19 +76,19 @@ class WorkoutPlanRepository:
             "exercises": exercises,
         }
 
-    def save(self):
-        data = {
+    def to_records(self, plans=None):
+        if plans is None:
+            plans = self.plans.values()
+        return {
             "next_id": self.next_id,
-            "plans": [self.plan_to_dict(plan) for plan in self.plans.values()],
+            "plans": [self.plan_to_dict(plan) for plan in plans],
         }
+
+    def save(self):
         try:
-            folder = os.path.dirname(self.data_file)
-            if folder:
-                os.makedirs(folder, exist_ok=True)
-            with open(self.data_file, "w", encoding="utf-8") as file:
-                json.dump(data, file, ensure_ascii=False, indent=2)
+            write_json_files([(self.data_file, self.to_records())])
             return True
-        except OSError:
+        except (OSError, TypeError, ValueError):
             print("Workout plan data could not be saved.")
             return False
 

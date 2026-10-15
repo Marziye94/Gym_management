@@ -2,6 +2,8 @@
 import json
 import os
 
+from gym.file_storage import write_json_files
+
 from gym.enrollments.class_enrollment import ClassEnrollment
 
 
@@ -39,6 +41,8 @@ class EnrollmentRepository:
                         is_active=record["is_active"],
                     )
 
+                    if enrollment.enrollment_id in loaded_enrollments:
+                        raise ValueError("Duplicate enrollment ID.")
                     loaded_enrollments[enrollment.enrollment_id] = enrollment
 
                 except (KeyError, TypeError, ValueError):
@@ -52,10 +56,12 @@ class EnrollmentRepository:
             self.load_failed = True
             return False
 
-    def save(self):
+    def to_records(self, enrollments=None):
+        if enrollments is None:
+            enrollments = self.enrollments.values()
         data = []
 
-        for enrollment in self.enrollments.values():
+        for enrollment in enrollments:
             data.append({
                 "enrollment_id": enrollment.enrollment_id,
                 "member_username": enrollment.member_username,
@@ -65,15 +71,12 @@ class EnrollmentRepository:
                 "is_active": enrollment.is_active,
             })
 
+        return data
+
+    def save(self):
         try:
-            folder = os.path.dirname(os.path.abspath(self.file_path))
-            os.makedirs(folder, exist_ok=True)
-
-            with open(self.file_path, "w", encoding="utf-8") as file:
-                json.dump(data, file)
-
+            write_json_files([(self.file_path, self.to_records())])
             return True
-
         except (OSError, TypeError, ValueError):
             return False
 
