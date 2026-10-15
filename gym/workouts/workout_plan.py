@@ -1,3 +1,6 @@
+import math
+
+
 class Exercise:
     def __init__(self, name, sets, repetitions, rest_time, description=""):
         self.check(name, sets, repetitions, rest_time, description)
@@ -16,6 +19,8 @@ class Exercise:
         if type(repetitions) is not int or repetitions <= 0:
             raise ValueError("Repetitions must be a positive integer.")
         if type(rest_time) not in (int, float) or rest_time < 0:
+            raise ValueError("Rest time must be a non-negative number.")
+        if type(rest_time) is float and not math.isfinite(rest_time):
             raise ValueError("Rest time must be a non-negative number.")
         if type(description) is not str:
             raise ValueError("Description must be text.")
