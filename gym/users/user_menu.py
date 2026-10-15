@@ -100,8 +100,6 @@ def _edit_user(user_manager):
     if name == "":
         name = user.name
     password = getpass("New password (Enter to keep): ")
-    if password == "":
-        password = user.password
     email = input("New email (Enter to keep, - to clear): ")
     if email == "":
         email = user.email
