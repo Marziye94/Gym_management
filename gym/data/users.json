@@ -1,0 +1,29 @@
+[
+  {
+    "user_id": 1,
+    "name": "Sara",
+    "username": "sara01",
+    "password": "Sara123@",
+    "role": "Manager",
+    "is_active": true,
+    "email": "manager@example.com"
+  },
+  {
+    "user_id": 2,
+    "name": "Marziye",
+    "username": "marzi01",
+    "password": "Marzi123@",
+    "role": "Coach",
+    "is_active": true,
+    "email": "coach@example.com"
+  },
+  {
+    "user_id": 3,
+    "name": "Reza",
+    "username": "reza01",
+    "password": "Reza123@",
+    "role": "Member",
+    "is_active": true,
+    "email": "member@example.com"
+  }
+]

@@ -222,4 +222,4 @@ gym/data/halls.json
 demos/data/
 
 # Authentication user storage
-gym/data/users.json
+# gym/data/users.json
