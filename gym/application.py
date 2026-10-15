@@ -37,12 +37,14 @@ def load_repository(name, repository_class, file_path):
         return None
 
 
-def create_subscription_manager(user_storage, repository):
+def create_subscription_manager(user_storage, repository, transaction_repository=None):
     def is_member_active(username):
         user = user_storage.get_user(username)
-        return user is not None and user.role == "Member" and user.is_active
+        if user is not None and user.role == "Member" and user.is_active:
+            return user
+        return None
 
-    return SubscriptionManager(repository, is_member_active)
+    return SubscriptionManager(repository, is_member_active, transaction_repository)
 
 
 def create_application(data_directory=DEFAULT_DATA_DIRECTORY):
@@ -71,10 +73,10 @@ def create_application(data_directory=DEFAULT_DATA_DIRECTORY):
 
     auth = AuthService(users) if users is not None else None
     user_manager = UserManager(None, users) if users is not None else None
-    hall_manager = HallManager(halls) if halls is not None else None
+    hall_manager = HallManager(halls, classes, allow_rename=classes is not None) if halls is not None else None
     subscription_manager = None
     if users is not None and subscriptions is not None:
-        subscription_manager = create_subscription_manager(users, subscriptions)
+        subscription_manager = create_subscription_manager(users, subscriptions, transactions)
 
     def check_coach(username):
         coach = users.get_user(username)
@@ -86,7 +88,8 @@ def create_application(data_directory=DEFAULT_DATA_DIRECTORY):
 
     class_manager = None
     if classes is not None and users is not None and hall_manager is not None:
-        class_manager = ClassManager(classes, check_coach, check_hall)
+        class_manager = ClassManager(classes, check_coach, check_hall, enrollments, workouts,
+                                     allow_rename=enrollments is not None and workouts is not None)
     payment_manager = None
     if wallets is not None and transactions is not None:
         payment_manager = PaymentManager(wallets, transactions, API())
