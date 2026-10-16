@@ -6,7 +6,6 @@ from gym.users.user import ALLOWED_ROLES, User
 from gym.users.user_validators import (
     validate_email,
     validate_name,
-    validate_password,
     validate_username,
 )
 
@@ -136,8 +135,8 @@ class UserStorage:
         username_result = validate_username(record["username"])
         self._check_validation(username_result)
 
-        password_result = validate_password(record["password"])
-        self._check_validation(password_result)
+        if not isinstance(record["password"], str) or record["password"] == "":
+            raise InvalidUserDataError("A stored user has an invalid password.")
 
         email_result = validate_email(record.get("email"))
         self._check_validation(email_result)

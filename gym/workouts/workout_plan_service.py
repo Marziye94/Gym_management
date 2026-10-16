@@ -80,8 +80,11 @@ class WorkoutPlanManager:
         class_id = result.data.name
         if self.plan_repository.find(username, class_id, member_username) is not None:
             return OperationResult(False, f"A workout plan for '{member_username}' already exists.")
+        next_id = self.plan_repository.next_id
         plan = WorkoutPlan(self.plan_repository.generate_id(), username, class_id, member_username)
-        self.plan_repository.add(plan)
+        if not self.plan_repository.add(plan):
+            self.plan_repository.next_id = next_id
+            return OperationResult(False, "Workout plan could not be saved.")
         return OperationResult(True, "Workout plan created successfully.", plan)
 
     def add_exercise(self, coach, class_name, member_username, name, sets, repetitions, rest_time, description):
@@ -94,7 +97,9 @@ class WorkoutPlanManager:
         except ValueError as error:
             return OperationResult(False, str(error))
         plan.add_exercise(exercise)
-        self.plan_repository.update(plan)
+        if not self.plan_repository.update(plan):
+            plan.exercises.pop()
+            return OperationResult(False, "Exercise could not be saved.")
         return OperationResult(True, "Exercise added successfully.", plan)
 
     def update_exercise(self, coach, class_name, member_username, number,
@@ -107,8 +112,11 @@ class WorkoutPlanManager:
         if exercise is None:
             return OperationResult(False, f"Exercise number {number} was not found.")
         try:
-            exercise.update(name, sets, repetitions, rest_time, description)
+            updated_exercise = Exercise(name, sets, repetitions, rest_time, description)
         except ValueError as error:
             return OperationResult(False, str(error))
-        self.plan_repository.update(plan)
+        plan.exercises[number - 1] = updated_exercise
+        if not self.plan_repository.update(plan):
+            plan.exercises[number - 1] = exercise
+            return OperationResult(False, "Exercise changes could not be saved.")
         return OperationResult(True, "Exercise updated successfully.", plan)

@@ -63,9 +63,10 @@ class UserManager:
         if not name_result["is_valid"]:
             return auth_result(False, name_result["message"])
 
-        password_result = validate_password(password)
-        if not password_result["is_valid"]:
-            return auth_result(False, password_result["message"])
+        if password != "":
+            password_result = validate_password(password)
+            if not password_result["is_valid"]:
+                return auth_result(False, password_result["message"])
 
         email_result = validate_email(email)
         if not email_result["is_valid"]:
@@ -81,6 +82,8 @@ class UserManager:
                 return result
 
             user = result["user"]
+            if password == "":
+                password = user.password
             edited_user = User(
                 user_id=user.user_id,
                 name=name,

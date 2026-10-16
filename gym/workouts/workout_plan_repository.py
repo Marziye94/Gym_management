@@ -97,17 +97,22 @@ class WorkoutPlanRepository:
 
     def add(self, plan):
         if plan.plan_id in self.plans:
-            return f"Workout plan {plan.plan_id} already exists."
+            return False
         self.plans[plan.plan_id] = plan
-        self.save()
-        return f"Workout plan {plan.plan_id} was added."
+        if not self.save():
+            del self.plans[plan.plan_id]
+            return False
+        return True
 
     def update(self, plan):
         if plan.plan_id not in self.plans:
-            return f"Workout plan {plan.plan_id} was not found."
+            return False
+        previous_plan = self.plans[plan.plan_id]
         self.plans[plan.plan_id] = plan
-        self.save()
-        return f"Workout plan {plan.plan_id} was updated."
+        if not self.save():
+            self.plans[plan.plan_id] = previous_plan
+            return False
+        return True
 
     def get_by_id(self, plan_id):
         return self.plans.get(plan_id)
