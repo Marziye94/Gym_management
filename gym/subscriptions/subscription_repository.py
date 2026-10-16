@@ -3,7 +3,6 @@ import os
 from datetime import date
 
 from gym.file_storage import write_files
-
 from gym.subscriptions.subscription import SubscriptionPlan, Subscription
 
 

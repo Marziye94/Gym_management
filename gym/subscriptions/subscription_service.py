@@ -2,9 +2,7 @@ import os
 from datetime import date, timedelta
 from uuid import uuid4
 
-from gym.payments.transaction import Transaction
 from gym.payments.transaction_repository import TransactionRepository
-
 from gym.errors import StorageError
 from gym.subscriptions.subscription import SubscriptionPlan, Subscription
 

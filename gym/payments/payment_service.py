@@ -1,5 +1,4 @@
-from gym.payments.wallet_repository import WalletRepository
-from gym.payments.transaction_repository import TransactionRepository
+
 from gym.payments.wallet import Wallet
 from gym.payments.transaction import Transaction
 
