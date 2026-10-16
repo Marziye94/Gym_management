@@ -45,6 +45,7 @@ def manager_menu(user, application):
                     application["subscription_manager"],
                     application["payment_manager"],
                     application["transaction_repository"].load_all,
+                    application["user_storage"],
                 )
             elif choice == "5":
                 if application["report_manager"] is None:

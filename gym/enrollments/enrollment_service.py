@@ -24,7 +24,7 @@ class ClassEnrollmentManager:
         active_count = 0
 
         for enrollment in self.enrollment_repository.get_all():
-            if enrollment.class_name == class_name and enrollment.is_active:
+            if enrollment.class_name == gym_class.class_name and enrollment.is_active:
                 active_count += 1
 
         #Ensure the remaining capacity never becomes negative.
@@ -43,11 +43,15 @@ class ClassEnrollmentManager:
 
         if not result.success:
             return False, result.message
+        
+        member_username = member.username
 
         gym_class = self.class_repository.get_class(class_name)
 
         if gym_class is None:
             return False, "Class not found."
+        
+        class_name = gym_class.name
 
         if not gym_class.is_active:
             return False, "This class is inactive."

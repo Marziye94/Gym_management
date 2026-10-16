@@ -32,6 +32,10 @@ class Subscription:
         self.end_date = end_date
 
     def get_status(self, current_date):
-        if self.start_date <= current_date < self.end_date:
+        if current_date < self.start_date:
+            return "Not Started"
+
+        if current_date < self.end_date:
             return "Active"
+
         return "Expired"

@@ -2,8 +2,59 @@ from datetime import date
 
 from gym.errors import StorageError
 
+def show_subscription_payments(manager, payments, user_storage):
+    found = False
 
-def manage_subscriptions_menu(manager, payment_manager, get_payments_callback):
+    for payment in payments:
+        description = str(payment.description).strip()
+        is_subscription_payment = (payment.transaction_type == "subscription_payment")
+
+        if (payment.transaction_type == "wallet_payment" and description.startswith("Subscription: ")):
+            is_subscription_payment = True
+
+        if not is_subscription_payment:
+            continue
+
+        found = True
+
+        member = user_storage.get_user(payment.member_username)
+        if member is not None:
+            member_name = member.name
+        else:
+            member_name = payment.member_username
+
+        subscription = manager.get_payment_subscription(payment.payment_id)
+
+        plan_name = "Unknown"
+
+        if description.startswith("Subscription: "):
+            plan_name = description[len("Subscription: "):].strip()
+
+        if subscription is not None:
+            plan = manager.get_plan(subscription.plan_id)
+
+            if plan is not None:
+                plan_name = plan.name
+
+            start_date = subscription.start_date
+            end_date = subscription.end_date
+
+        else:
+            start_date = "Not recorded"
+            end_date = "Not recorded"
+
+        print("Member:", member_name)
+        print("Plan:", plan_name)
+        print("Amount:", payment.amount)
+        print("Payment Date:", payment.date)
+        print("Start Date:", start_date)
+        print("End Date:", end_date)
+        print("Tracking Number:", payment.payment_id)
+
+    if not found:
+        print("No subscription payments found.")
+
+def manage_subscriptions_menu(manager, payment_manager, get_payments_callback, user_storage):
     while True:
         print("--- Subscription Management ---")
         print("1. Create Subscription Plan")
@@ -72,34 +123,8 @@ def manage_subscriptions_menu(manager, payment_manager, get_payments_callback):
 
             elif choice == "4":
                 payments = get_payments_callback()
-                found = False
 
-                for payment in payments:
-                    description = str(payment.description).strip()
-                    if payment.transaction_type not in ("wallet_payment", "subscription_payment") or not description.startswith("Subscription: "):
-                        continue
-                    found = True
-
-                    plan_name = description
-                    if plan_name.startswith("Subscription: "):
-                        plan_name = plan_name.removeprefix(
-                            "Subscription: ")
-
-                    print(
-                        "Member:", payment.member_username,
-                        "| Plan:", plan_name,
-                        "| Amount:", payment.amount,
-                        "| Date:", payment.date,
-                        "| Tracking ID:", payment.payment_id,
-                    )
-                    subscription = manager.get_payment_subscription(payment.payment_id)
-                    if subscription is not None:
-                        print("Start:", subscription.start_date, "| End:", subscription.end_date)
-                    else:
-                        print("Start / End: Not recorded for this older payment.")
-
-                if not found:
-                    print("No subscription payments found.")
+                show_subscription_payments(manager, payments, user_storage)
 
             elif choice == "5":
                 username = input("Member username: ").strip()
