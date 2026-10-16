@@ -164,38 +164,6 @@ class SubscriptionManager:
             "end_date": subscription.end_date,
         }
 
-    def register_subscription(self, member_username, name, price, duration_days, start_date):
-        try:
-            member_username = self._active_member_username(member_username)
-            if member_username is None:
-                return OperationResult(False, 'Subscription failed: Member does not exist or is inactive.')
-            plan = SubscriptionPlan(name, price, duration_days)
-            subscription = Subscription(member_username, None, start_date,
-                                        start_date + timedelta(days=duration_days))
-            subscription.payment_id = uuid4().hex
-            payment = Transaction(member_username, "subscription_payment", plan.price,
-                                  subscription.payment_id, "Subscription: " + plan.name)
-            self.repo.add_plan_and_subscription(plan, subscription, self.transaction_repository, payment)
-            return OperationResult(True, 'Subscription created successfully.',
-                                   self._subscription_info(subscription, plan))
-        except (ValueError, TypeError, OverflowError, OSError, StorageError) as error:
-            return OperationResult(False, str(error))
-
-    def create_subscription(self, member_username, plan_id, start_date):
-        try:
-            member_username = self._active_member_username(member_username)
-            if member_username is None:
-                return OperationResult(False, 'Subscription failed: Member does not exist or is inactive.')
-            plan = self.get_plan(plan_id)
-            if plan is None:
-                return OperationResult(False, 'Subscription failed: Plan not found or inactive.')
-            end_date = start_date + timedelta(days=plan.duration_days)
-            subscription = Subscription(member_username, plan_id, start_date, end_date)
-            self.repo.add_subscription(subscription)
-            return OperationResult(True, 'Subscription created successfully.', self._subscription_info(subscription, plan))
-        except (ValueError, TypeError, OverflowError, OSError, StorageError) as error:
-            return OperationResult(False, str(error))
-
     def _active_member_username(self, username):
         member = self.is_member_active_lookup(username)
         if not member:
