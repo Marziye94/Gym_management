@@ -1,60 +1,53 @@
+
 import json
 import os
-import shutil
-import tempfile
 
 
 def write_files(files):
-    pending = []
-    completed = []
-    temporary_files = []
+    old_files = {}
+
     try:
         for file_path, content in files:
             file_path = os.path.abspath(file_path)
+
+            if file_path not in old_files:
+                if os.path.exists(file_path):
+                    with open(file_path, "r", encoding="utf-8", newline="") as file:
+                        old_files[file_path] = (True, file.read())
+                else:
+                    old_files[file_path] = (False, None)
+
             directory = os.path.dirname(file_path)
             os.makedirs(directory, exist_ok=True)
-            descriptor, temporary_path = tempfile.mkstemp(dir=directory, suffix=".tmp")
-            os.close(descriptor)
-            temporary_files.append(temporary_path)
-            with open(temporary_path, "w", encoding="utf-8", newline="") as file:
+
+            with open(file_path, "w", encoding="utf-8", newline="") as file:
                 file.write(content)
 
-            backup_path = None
-            if len(files) > 1 and os.path.exists(file_path):
-                descriptor, backup_path = tempfile.mkstemp(dir=directory, suffix=".bak")
-                os.close(descriptor)
-                temporary_files.append(backup_path)
-                shutil.copyfile(file_path, backup_path)
-            pending.append((file_path, temporary_path, backup_path))
+    except (OSError, UnicodeError, TypeError):
+        for file_path, old_data in reversed(list(old_files.items())):
+            existed, content = old_data
 
-        for file_path, temporary_path, backup_path in pending:
-            os.replace(temporary_path, file_path)
-            completed.append((file_path, backup_path))
-    except OSError:
-        restore_errors = []
-        for file_path, backup_path in reversed(completed):
-            if backup_path is not None:
-                temporary_files.remove(backup_path)
             try:
-                if backup_path is None:
+                if existed:
+                    with open(file_path, "w", encoding="utf-8", newline="") as file:
+                        file.write(content)
+                elif os.path.exists(file_path):
                     os.remove(file_path)
-                else:
-                    os.replace(backup_path, file_path)
-            except OSError:
-                restore_errors.append(file_path + "; backup: " + str(backup_path))
-        if restore_errors:
-            raise OSError("Could not restore: " + ", ".join(restore_errors))
-        raise
-    finally:
-        for temporary_path in temporary_files:
-            try:
-                os.remove(temporary_path)
             except OSError:
                 pass
 
+        raise
 
 def write_json_files(files):
     contents = []
+
     for file_path, data in files:
-        contents.append((file_path, json.dumps(data, ensure_ascii=False, indent=2, allow_nan=False)))
+        content = json.dumps(
+            data,
+            ensure_ascii=False,
+            indent=2,
+            allow_nan=False
+        )
+        contents.append((file_path, content))
+
     write_files(contents)
