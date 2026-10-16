@@ -1,5 +1,7 @@
 import json
 import os
+
+from gym.file_storage import write_json_files
 from gym.classes.gym_class import GymClass
 
 
@@ -42,34 +44,34 @@ class ClassRepository:
             self.load_failed = True
             print("Error: Could not read stored class data.")
 
+    def to_records(self, classes=None):
+        if classes is None:
+            classes = self.classes.values()
+        data_list = []
+        for gym_class in classes:
+            status = "Active"
+            if not gym_class.is_active:
+                status = "Inactive"
+
+            item = {
+                "title": gym_class.name,
+                "sport_type": gym_class.exercise,
+                "coach": gym_class.coach_name,
+                "hall": gym_class.hall_name,
+                "day": gym_class.day,
+                "time": gym_class.time,
+                "total_capacity": gym_class.capacity,
+                "status": status
+            }
+            data_list.append(item)
+
+        return data_list
+
     def save(self):
         try:
-            folder = os.path.dirname(self.data_file)
-            if folder != "":
-                os.makedirs(folder, exist_ok=True)
-
-            data_list = []
-            for gym_class in self.classes.values():
-                status = "Active"
-                if not gym_class.is_active:
-                    status = "Inactive"
-
-                item = {
-                    "title": gym_class.name,
-                    "sport_type": gym_class.exercise,
-                    "coach": gym_class.coach_name,
-                    "hall": gym_class.hall_name,
-                    "day": gym_class.day,
-                    "time": gym_class.time,
-                    "total_capacity": gym_class.capacity,
-                    "status": status
-                }
-                data_list.append(item)
-
-            with open(self.data_file, "w", encoding="utf-8") as file:
-                json.dump(data_list, file, indent=4)
+            write_json_files([(self.data_file, self.to_records())])
             return True
-        except Exception:
+        except (OSError, TypeError, ValueError):
             print("Error: Could not save class data.")
             return False
 

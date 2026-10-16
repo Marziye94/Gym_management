@@ -1,3 +1,6 @@
+from copy import copy
+
+from gym.file_storage import write_json_files
 from gym.classes.gym_class import GymClass
 
 
@@ -9,16 +12,14 @@ class OperationResult:
 
 
 class ClassManager:
-    def __init__(
-            self,
-            repository, 
-            check_coach_active_fn,
-            check_hall_active_fn,
-            enrollment_repository=None):
+    def __init__(self, repository, check_coach_active_fn, check_hall_active_fn,
+                 enrollment_repository=None, workout_repository=None, allow_rename=True):
         self.repository = repository
         self.check_coach = check_coach_active_fn
         self.check_hall = check_hall_active_fn
         self.enrollment_repository = enrollment_repository
+        self.workout_repository = workout_repository
+        self.allow_rename = allow_rename
 
     def create_class(self, name, exercise, coach_name, hall_name, day, time, capacity):
         try:
@@ -76,6 +77,8 @@ class ClassManager:
 
             clean_current = gym_class.name
             clean_new_name = str(new_name).strip() if new_name else ""
+            if clean_new_name != clean_current and not self.allow_rename:
+                return OperationResult(False, "Class renaming is unavailable until enrollment and workout data can be loaded.")
             clean_coach = str(new_coach_name).strip() if new_coach_name else ""
             clean_hall = str(new_hall_name).strip() if new_hall_name else ""
 
@@ -98,18 +101,12 @@ class ClassManager:
             if not self.check_hall(clean_hall):
                 return OperationResult(False, f"Hall '{clean_hall}' does not exist or is inactive.")
 
-            if new_capacity < gym_class.capacity:
-                if self.enrollment_repository is None:
-                    return OperationResult(False,"Cannot reduce capacity because enrollment data is unavailable.")
-                
-                active_count = 0
-                for enrollment in self.enrollment_repository.get_all():
-                    if enrollment.class_name == gym_class.name and enrollment.is_active:
-                        active_count += 1
+            if new_capacity < gym_class.capacity and self.enrollment_repository is None:
+                return OperationResult(False, "Cannot reduce capacity because enrollment data is unavailable.")
+            registered_count = self._registered_count(gym_class)
+            if new_capacity < registered_count:
+                return OperationResult(False, "Capacity cannot be less than the number of registered members.")
 
-                if new_capacity < active_count:
-                    return OperationResult(False, f"Cannot reduce class capacity below {active_count}")
-                
             updated_class = GymClass(
                 gym_class.name,
                 gym_class.exercise,
@@ -129,7 +126,7 @@ class ClassManager:
                 new_time,
                 new_capacity,
             )
-            if not self.repository.update(updated_class, old_name=clean_current):
+            if not self._save_class(updated_class, clean_current):
                 return OperationResult(False, "Could not update the class.")
 
             return OperationResult(True, "Class updated successfully.", updated_class)
@@ -200,3 +197,56 @@ class ClassManager:
             gym_class.is_active = previous_status
             return OperationResult(False, "Could not save the class status.")
         return OperationResult(True, "Class activated successfully.", gym_class)
+
+    def get_remaining_capacity(self, class_name):
+        gym_class = self.repository.get_class(class_name)
+        if gym_class is None:
+            return None
+        return max(0, gym_class.capacity - self._registered_count(gym_class))
+
+    def _registered_count(self, gym_class):
+        if self.enrollment_repository is None:
+            return 0
+        count = 0
+        for enrollment in self.enrollment_repository.get_all():
+            if enrollment.class_name == gym_class.name and enrollment.is_active:
+                count += 1
+        return count
+
+    def _save_class(self, gym_class, old_name):
+        if gym_class.name == old_name:
+            return self.repository.update(gym_class, old_name)
+        classes = self.repository.classes.copy()
+        del classes[old_name]
+        classes[gym_class.name] = gym_class
+        files = [(self.repository.data_file, self.repository.to_records(classes.values()))]
+        enrollments = {}
+        plans = {}
+        if self.enrollment_repository is not None:
+            enrollments = self.enrollment_repository.enrollments.copy()
+            for enrollment_id, enrollment in enrollments.items():
+                if enrollment.class_name == old_name:
+                    updated_enrollment = copy(enrollment)
+                    updated_enrollment.class_name = gym_class.name
+                    enrollments[enrollment_id] = updated_enrollment
+            files.append((self.enrollment_repository.file_path,
+                          self.enrollment_repository.to_records(enrollments.values())))
+        if self.workout_repository is not None:
+            plans = self.workout_repository.plans.copy()
+            for plan_id, plan in plans.items():
+                if plan.class_id == old_name:
+                    updated_plan = copy(plan)
+                    updated_plan.class_id = gym_class.name
+                    plans[plan_id] = updated_plan
+            files.append((self.workout_repository.data_file,
+                          self.workout_repository.to_records(plans.values())))
+        try:
+            write_json_files(files)
+        except (OSError, TypeError, ValueError):
+            return False
+        self.repository.classes = classes
+        if self.enrollment_repository is not None:
+            self.enrollment_repository.enrollments = enrollments
+        if self.workout_repository is not None:
+            self.workout_repository.plans = plans
+        return True

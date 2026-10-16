@@ -1,3 +1,6 @@
+import math
+
+
 class ReportResult:
     def __init__(self, success, message, data=None):
         self.success = success
@@ -47,45 +50,32 @@ class ReportManager:
         except Exception as error:
             return ReportResult(False, "Could not calculate active classes: " + str(error))
 
-
     def get_total_revenue(self):
         try:
             transactions = self.transaction_repository.load_all()
-            total_revenue = 0.0
+            total_revenue = 0
 
             for tx in transactions:
-                tx_type = str(tx.transaction_type).strip()
-                description = str(tx.description).strip()
+                tx_type = str(getattr(tx, "transaction_type", "")
+                              ).strip().lower()
+                pay_id = str(getattr(tx, "payment_id", "")).strip().lower()
+                amount_raw = getattr(tx, "amount", 0)
+
+                if pay_id == "" or pay_id == "none" or "fail" in pay_id:
+                    continue
+                if tx_type not in ("wallet_payment", "subscription_payment", "wallet_refund", "subscription_payment_refund"):
+                    continue
 
                 try:
-                    amount = float(tx.amount)
+                    amount_val = float(amount_raw)
+                    if math.isfinite(amount_val) and amount_val > 0:
+                        if tx_type in ("wallet_refund", "subscription_payment_refund"):
+                            total_revenue -= amount_val
+                        else:
+                            total_revenue += amount_val
                 except (ValueError, TypeError):
                     continue
 
-                if amount <= 0:
-                    continue
-
-                if tx_type in ("wallet_charge", "wallet_refund"):
-                    continue
-
-                if tx_type == "subscription_payment_refund":
-                    total_revenue -= amount
-                    continue
-
-                if tx_type == "subscription_payment":
-                    total_revenue += amount
-                    continue
-
-                if (tx_type == "wallet_payment" and description.startswith("subscription: ")):
-                    total_revenue += amount
-                    continue
-
-                if tx_type == "wallet_payment":
-                    total_revenue += amount
-
-            total_revenue = max(0.0, total_revenue)
-
-            return ReportResult(True, "Total revenue calculated successfully.", total_revenue)
-
+            return ReportResult(True, "Total revenue calculated successfully.", max(0.0, total_revenue))
         except Exception as error:
             return ReportResult(False, "Could not calculate total revenue: " + str(error))

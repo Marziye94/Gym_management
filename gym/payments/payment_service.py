@@ -61,13 +61,13 @@ class PaymentManager:
         return True, "Wallet charged successfully."
 
 
-    def pay_from_wallet(self, member_username, amount, description="Wallet payment"):
-        return self._pay_from_wallet(member_username, amount, description, transaction_type="wallet_payment")
+    def pay_from_wallet(self, member_username, amount, description="Wallet payment", payment_id=None):
+        return self._pay_from_wallet(member_username, amount, description, transaction_type="wallet_payment", payment_id=payment_id)
 
-    def pay_subscription_from_wallet(self, member_username, amount, plan_name):
-        return self._pay_from_wallet(member_username, amount, "Subscription: " + plan_name, transaction_type="subscription_payment")
+    def pay_subscription_from_wallet(self, member_username, amount, plan_name, payment_id=None):
+        return self._pay_from_wallet(member_username, amount, "Subscription: " + plan_name, transaction_type="subscription_payment", payment_id=payment_id)
 
-    def _pay_from_wallet(self, member_username, amount, description, transaction_type):
+    def _pay_from_wallet(self, member_username, amount, description, transaction_type, payment_id=None):
         if not self._validate_member(member_username):
             return False, "Invalid member username."
 
@@ -81,7 +81,8 @@ class PaymentManager:
         if amount > wallet.get_balance():
             return False, "Insufficient balance."
 
-        payment_id = self.bank_api.generate_payment_id(amount, wallet.get_balance())
+        if payment_id is None:
+            payment_id = self.bank_api.generate_payment_id(amount, wallet.get_balance())
 
         transaction = Transaction(
             member_username=member_username,
@@ -113,7 +114,7 @@ class PaymentManager:
 
         return True, transactions
 
- 
+
     def refund_to_wallet(self, member_username, amount, description, transaction_type="wallet_refund"):
         amount = self._validate_amount(amount)
 

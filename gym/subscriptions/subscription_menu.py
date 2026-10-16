@@ -76,6 +76,8 @@ def manage_subscriptions_menu(manager, payment_manager, get_payments_callback):
 
                 for payment in payments:
                     description = str(payment.description).strip()
+                    if payment.transaction_type not in ("wallet_payment", "subscription_payment") or not description.startswith("Subscription: "):
+                        continue
                     found = True
 
                     plan_name = description
@@ -90,6 +92,11 @@ def manage_subscriptions_menu(manager, payment_manager, get_payments_callback):
                         "| Date:", payment.date,
                         "| Tracking ID:", payment.payment_id,
                     )
+                    subscription = manager.get_payment_subscription(payment.payment_id)
+                    if subscription is not None:
+                        print("Start:", subscription.start_date, "| End:", subscription.end_date)
+                    else:
+                        print("Start / End: Not recorded for this older payment.")
 
                 if not found:
                     print("No subscription payments found.")

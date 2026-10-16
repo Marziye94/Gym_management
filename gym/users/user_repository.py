@@ -1,6 +1,7 @@
 import json
 import os
 
+from gym.file_storage import write_files
 from gym.errors import InvalidUserDataError, StorageError
 from gym.users.user import ALLOWED_ROLES, User
 from gym.users.user_validators import (
@@ -161,10 +162,7 @@ class UserStorage:
             seen_usernames.add(username)
 
     def _write_file(self, content):
-        directory = os.path.dirname(os.path.abspath(self.data_file))
         try:
-            os.makedirs(directory, exist_ok=True)
-            with open(self.data_file, "w", encoding="utf-8") as file:
-                file.write(content)
+            write_files([(self.data_file, content)])
         except OSError:
             raise StorageError("User data file could not be written.")

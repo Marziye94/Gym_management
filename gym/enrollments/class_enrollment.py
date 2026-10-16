@@ -9,6 +9,8 @@ class ClassEnrollment:
         tracking_number,
         is_active=True,
     ):
+        if type(enrollment_id) is not int or enrollment_id < 1:
+            raise ValueError("Enrollment ID must be a positive integer.")
         self._validate_inputs(member_username, class_name, tracking_number, is_active)
 
         self.enrollment_id = enrollment_id

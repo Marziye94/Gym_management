@@ -1,5 +1,7 @@
 import json
 import os
+
+from gym.file_storage import write_json_files
 from gym.payments.wallet import Wallet
 
 
@@ -45,9 +47,6 @@ class WalletRepository:
             data[username] = wallet.get_balance()
 
         try:
-            os.makedirs(os.path.dirname(os.path.abspath(self.file_path)), exist_ok=True)
-            with open(self.file_path, "w", encoding="utf-8") as file:
-                json.dump(data, file)
-
+            write_json_files([(self.file_path, data)])
         except OSError:
             raise OSError("Could not save wallets")
